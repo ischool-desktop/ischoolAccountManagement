@@ -117,6 +117,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -125,6 +128,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminForm.Designer.cs">
+      <DependentUpon>AdminForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DAO\Service.cs" />
+    <Compile Include="DAO\UDT_AdminData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Student\ExportStudentAccount.cs" />
@@ -134,12 +145,27 @@
     <Compile Include="Student\ExportStudentV2.Designer.cs">
       <DependentUpon>ExportStudentV2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Student\ImportStudentAccount.cs" />
+    <Compile Include="Student\ImportStudentV2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Student\ImportStudentV2.Designer.cs">
+      <DependentUpon>ImportStudentV2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Teacher\ExportTeacherAccount.cs" />
     <Compile Include="Teacher\ExportTeacherV2.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Teacher\ExportTeacherV2.Designer.cs">
       <DependentUpon>ExportTeacherV2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Teacher\ImportTeacherV2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Teacher\ImportTeacherV2.Designer.cs">
+      <DependentUpon>ImportTeacherV2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Library\Aspose.Cells.dll" />
@@ -175,16 +201,22 @@
     <Content Include="Library\SmartSchool.ErrorReporting.dll" />
     <Content Include="Library\SmartSchool.ErrorReporting.xml" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Admin\" />
-    <Folder Include="DAO\" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Admin\AdminForm.resx">
+      <DependentUpon>AdminForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Student\ExportStudentV2.resx">
       <DependentUpon>ExportStudentV2.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Student\ImportStudentV2.resx">
+      <DependentUpon>ImportStudentV2.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Teacher\ExportTeacherV2.resx">
       <DependentUpon>ExportTeacherV2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Teacher\ImportTeacherV2.resx">
+      <DependentUpon>ImportTeacherV2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

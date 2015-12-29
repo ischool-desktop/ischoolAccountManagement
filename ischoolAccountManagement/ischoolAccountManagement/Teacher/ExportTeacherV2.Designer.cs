@@ -1,4 +1,4 @@
-﻿namespace ischoolAccountManagement.Teacher
+﻿namespace ischoolAccountManagement
 {
     partial class ExportTeacherV2
     {

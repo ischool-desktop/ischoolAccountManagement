@@ -15,7 +15,7 @@ using SmartSchool.API.PlugIn.Export;
 using K12.Data;
 using FISCA.Presentation.Controls;
 
-namespace ischoolAccountManagement.Teacher
+namespace ischoolAccountManagement
 {
     public partial class ExportTeacherV2  :BaseForm,SmartSchool.API.PlugIn.Export.ExportWizard
     {
