@@ -159,6 +159,7 @@
     <Compile Include="Teacher\ExportTeacherV2.Designer.cs">
       <DependentUpon>ExportTeacherV2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Teacher\ImportTeacherData.cs" />
     <Compile Include="Teacher\ImportTeacherV2.cs">
       <SubType>Form</SubType>
     </Compile>

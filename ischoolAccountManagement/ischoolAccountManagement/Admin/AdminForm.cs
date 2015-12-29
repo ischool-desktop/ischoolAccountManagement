@@ -14,7 +14,7 @@ namespace ischoolAccountManagement.Admin
 {
     public partial class AdminForm : BaseForm
     {
-        private string _Title = "Domain管理者";
+        private string _Title = "網域管理者帳號設定";
         private string _AccountType="";
         UDT_AdminData _AdminData = null;        
         

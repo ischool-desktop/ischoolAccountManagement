@@ -13,14 +13,15 @@ using System.Xml.Linq;
 
 namespace ischoolAccountManagement
 {
-    class ImportStudentData : SmartSchool.API.PlugIn.Import.Importer
+    class ImportTeacherData : SmartSchool.API.PlugIn.Import.Importer
     {
         List<string> _FieldNameList = new List<string>();
         List<string> _Keys = new List<string>();
-        public ImportStudentData()
+
+        public ImportTeacherData()
         {
             this.Image = null;
-            this.Text = "匯入學生帳號";
+            this.Text = "匯入教師帳號";
             _FieldNameList.Add("登入帳號");
             _FieldNameList.Add("密碼");
             _FieldNameList.Add("姓");
@@ -28,40 +29,40 @@ namespace ischoolAccountManagement
         }
 
         public override void InitializeImport(SmartSchool.API.PlugIn.Import.ImportWizard wizard)
-        {   
+        {
+            VirtualCheckBox setAccount = new VirtualCheckBox("設定網域管理者帳號", false);
+            setAccount.CheckedChanged += delegate
+            {
+                if (setAccount.Checked)
+                {
+                    Admin.AdminForm ad = new Admin.AdminForm("teacher");
+                    ad.Show();
+                    setAccount.Checked = false;
+                }
+            };
+
             // 檢查是否已設定網路管理者
-            UDT_AdminData chkAdData = Utility.GetAdminData("student");
+            UDT_AdminData chkAdData = Utility.GetAdminData("teacher");
             bool chkAdDataErr = false;
             if (chkAdData == null)
                 chkAdDataErr = true;
 
-            if(chkAdData !=null)
+            if (chkAdData != null)
             {
                 if (chkAdData.Account.Trim() == "" || chkAdData.Password.Trim() == "" || chkAdData.Domain.Trim() == "")
                     chkAdDataErr = true;
             }
 
-            if(chkAdDataErr)
+            if (chkAdDataErr)
             {
-                string msg = "網路管理者帳號未設定或設定不完整，無法上傳學生網域帳號，請至進階 設定網域管理者帳號";
+                string msg = "網路管理者帳號未設定或設定不完整，無法上傳教師網域帳號，請至進階 設定網域管理者帳號";
                 FISCA.Presentation.Controls.MsgBox.Show(msg);
             }
 
-            VirtualCheckBox setAccount = new VirtualCheckBox("設定網域管理者帳號", false);
-            setAccount.CheckedChanged += delegate { 
-            if(setAccount.Checked)
-            {
-
-                Admin.AdminForm ad = new Admin.AdminForm("student");          
-                ad.Show();
-                setAccount.Checked = false;
-            }
-            };            
-
-            wizard.Options.Add(setAccount);            
+            wizard.Options.Add(setAccount);
             wizard.PackageLimit = 3000;
             //必需要有的欄位
-            wizard.RequiredFields.AddRange("學號");
+            wizard.RequiredFields.AddRange("教師姓名","暱稱");
             //可匯入的欄位
             wizard.ImportableFields.AddRange(_FieldNameList);
 
@@ -77,100 +78,87 @@ namespace ischoolAccountManagement
 
         void wizard_ImportPackage(object sender, SmartSchool.API.PlugIn.Import.ImportPackageEventArgs e)
         {
-            // 尋找主要Key來判斷，如果有學生系統編號先用系統編號，沒有使用學號，
+
+            // 尋找主要Key來判斷，如果有教師系統編號先用系統編號，沒有使用學號，
             Dictionary<string, RowData> RowDataDict = new Dictionary<string, RowData>();
             Dictionary<string, int> chkSidDict = new Dictionary<string, int>();
             Dictionary<string, string> chkSnumDict = new Dictionary<string, string>();
-            List<StudentRecord> InsertStudentRecList = new List<StudentRecord>();
-            List<StudentRecord> StudentRecAllList = K12.Data.Student.SelectAll();
-            // 系統內學生帳號
+            List<TeacherRecord> InsertStudentRecList = new List<TeacherRecord>();
+            List<TeacherRecord> TeacherRecAllList = K12.Data.Teacher.SelectAll();
+            // 系統內教師帳號
             Dictionary<string, string> StudSANameDict = new Dictionary<string, string>();
-            
-            foreach (StudentRecord rec in StudentRecAllList)
+
+            foreach (TeacherRecord rec in TeacherRecAllList)
             {
                 chkSidDict.Add(rec.ID, 0);
-                string key = rec.StudentNumber + rec.StatusStr;
-                if (!chkSnumDict.ContainsKey(key))
-                    chkSnumDict.Add(key, rec.ID);
-
-                if (!StudSANameDict.ContainsKey(rec.SALoginName))
-                    StudSANameDict.Add(rec.SALoginName, rec.ID);
+                if (!StudSANameDict.ContainsKey(rec.TALoginName))
+                    StudSANameDict.Add(rec.TALoginName, rec.ID);
             }
 
-             // 再次建立索引
-            Dictionary<string, StudentRecord> StudRecAllDict = new Dictionary<string, StudentRecord>();
-            StudentRecAllList = K12.Data.Student.SelectAll();
+            // 再次建立索引
+            Dictionary<string, TeacherRecord> TeacherRecAllDict = new Dictionary<string, TeacherRecord>();
+            TeacherRecAllList = K12.Data.Teacher.SelectAll();
             chkSidDict.Clear();
             chkSnumDict.Clear();
-            foreach (StudentRecord rec in StudentRecAllList)
-            {
-                chkSidDict.Add(rec.ID, 0);
-                string key = rec.StudentNumber + rec.StatusStr;
+            foreach (TeacherRecord rec in TeacherRecAllList)
+            {             
+                string key = rec.Name+rec.Nickname + rec.StatusStr;
                 if (!chkSnumDict.ContainsKey(key))
                     chkSnumDict.Add(key, rec.ID);
 
-                StudRecAllDict.Add(rec.ID, rec);
+                TeacherRecAllDict.Add(rec.ID, rec);
             }
 
-            List<string> StudentIDList = new List<string>();
+            List<string> TeacherIDList = new List<string>();
             //比對
             foreach (RowData Row in e.Items)
             {
-                string StudentID = "";
+                string TeacherID = "";
 
-                if (Row.ContainsKey("學生系統編號"))
+                if (Row.ContainsKey("教師系統編號"))
                 {
-                    string id = Row["學生系統編號"].ToString();
+                    string id = Row["教師系統編號"].ToString();
                     if (chkSidDict.ContainsKey(id))
-                        StudentID = id;
+                        TeacherID = id;
                 }
 
-                if (StudentID == "")
-                {
-                    string ssNum = "", snum = "";
-                    if (Row.ContainsKey("學號"))
+                if (TeacherID == "")
+                {                   
+                    if (Row.ContainsKey("教師姓名") && Row.ContainsKey("暱稱"))
                     {
-                        snum = Row["學號"].ToString();
-                        string status = "一般";
-                        if (Row.ContainsKey("狀態"))
-                        {
-                            if (Row["狀態"].ToString() != "")
-                                status = Row["狀態"].ToString();
-                        }
-                        ssNum = snum + status;
+                        string key = Row["教師姓名"].ToString() + Row["暱稱"].ToString() + "一般";
+                        if (chkSnumDict.ContainsKey(key))
+                            TeacherID = chkSnumDict[key];
                     }
-
-                    if (chkSnumDict.ContainsKey(ssNum))
-                        StudentID = chkSnumDict[ssNum];
                 }
 
-                if (!string.IsNullOrEmpty(StudentID))
+                if (!string.IsNullOrEmpty(TeacherID))
                 {
-                    if (!RowDataDict.ContainsKey(StudentID))
-                        RowDataDict.Add(StudentID, Row);
+                    if (!RowDataDict.ContainsKey(TeacherID))
+                        RowDataDict.Add(TeacherID, Row);
 
-                    StudentIDList.Add(StudentID);
+                    TeacherIDList.Add(TeacherID);
                 }
             }
-            // 取得學生基本
-            List<StudentRecord> StudentRecordList = K12.Data.Student.SelectByIDs(StudentIDList);
-            Dictionary<string, StudentRecord> StudentRecordDict = new Dictionary<string, StudentRecord>();
-            foreach (StudentRecord rec in StudentRecordList)
-                if (!StudentRecordDict.ContainsKey(rec.ID))
-                    StudentRecordDict.Add(rec.ID, rec);
+            // 取得教師基本
+            List<TeacherRecord> TeacherRecordList = K12.Data.Teacher.SelectByIDs(TeacherIDList);
+            Dictionary<string, TeacherRecord> TeacherRecordDict = new Dictionary<string, TeacherRecord>();
+            foreach (TeacherRecord rec in TeacherRecordList)
+                if (!TeacherRecordDict.ContainsKey(rec.ID))
+                    TeacherRecordDict.Add(rec.ID, rec);
 
 
             List<Service.UserAccount> UserAccountList = new List<Service.UserAccount>();
 
             // 開始處理
-            List<StudentRecord> updateStudentRecList = new List<StudentRecord>();
-            
+            List<TeacherRecord> updateTeacherRecList = new List<TeacherRecord>();
+
             #region 上傳到Domain
             string dName = "", dAccount = "", dPwd = "";
 
             bool chkSend = false;
             // 取得帳號UDT
-            UDT_AdminData udtAdmin = Utility.GetAdminData("student");
+            UDT_AdminData udtAdmin = Utility.GetAdminData("teacher");
             if (udtAdmin != null)
             {
                 dName = udtAdmin.Domain;
@@ -181,35 +169,30 @@ namespace ischoolAccountManagement
 
             StringBuilder sbLog = new StringBuilder();
 
-            foreach (string StudentID in RowDataDict.Keys)
+            foreach (string TeacherID in RowDataDict.Keys)
             {
-                if (StudentRecordDict.ContainsKey(StudentID))
+                if (TeacherRecordDict.ContainsKey(TeacherID))
                 {
-                    string tt = "學生系統編號：" + StudentID + ",學號：" + StudentRecordDict[StudentID].StudentNumber;
-                    if (StudentRecordDict[StudentID].Class != null)
-                        tt += "班級：" + StudentRecordDict[StudentID].Class.Name;
-
-                    if (StudentRecordDict[StudentID].SeatNo.HasValue)
-                        tt += "座號：" + StudentRecordDict[StudentID].SeatNo.Value;
-                    RowData rd = RowDataDict[StudentID];
+                    string tt = "教師系統編號：" + TeacherID + ",教師姓名：" + TeacherRecordDict[TeacherID].Name + ", 暱稱：" + TeacherRecordDict[TeacherID].Nickname;
+                    RowData rd = RowDataDict[TeacherID];
                     if (rd.ContainsKey("登入帳號"))
                     {
                         string value = rd["登入帳號"].ToString();
-                        if (StudentRecordDict[StudentID].SALoginName != value)
-                            sbLog.AppendLine(string.Format("登入帳號由「{0}」改為「{1}」", StudentRecordDict[StudentID].SALoginName, value));
-                        StudentRecordDict[StudentID].SALoginName = value;
-                        updateStudentRecList.Add(StudentRecordDict[StudentID]);
+                        if (TeacherRecordDict[TeacherID].TALoginName != value)
+                            sbLog.AppendLine(string.Format("登入帳號由「{0}」改為「{1}」", TeacherRecordDict[TeacherID].TALoginName, value));
+                        TeacherRecordDict[TeacherID].TALoginName = value;
+                        updateTeacherRecList.Add(TeacherRecordDict[TeacherID]);
                     }
                 }
             }
 
-            if (updateStudentRecList.Count > 0)
-                K12.Data.Student.Update(updateStudentRecList);
+            if (updateTeacherRecList.Count > 0)
+                K12.Data.Teacher.Update(updateTeacherRecList);
 
-            FISCA.LogAgent.ApplicationLog.Log("匯入學生帳號", "匯入", sbLog.ToString());
+            FISCA.LogAgent.ApplicationLog.Log("匯入教師帳號", "匯入", sbLog.ToString());
 
 
-            if(chkSend)
+            if (chkSend)
             {
                 StringBuilder sendSB = new StringBuilder();
 
@@ -222,7 +205,7 @@ namespace ischoolAccountManagement
 
                         // 檢查Account 是否有帶@，沒有自動加入。
                         if (!uAcc.Account.Contains("@"))
-                            uAcc.Account += uAcc.Account +"@"+dName;
+                            uAcc.Account += uAcc.Account + "@" + dName;
 
                     }
 
@@ -245,10 +228,10 @@ namespace ischoolAccountManagement
                 req.ContentType = "application/json";
 
                 sendSB.Append("{");
-                string titleStr = "'application':'"+dsns+"','domain':{'name':'"+dName+"','acc':'"+dAccount+"','pwd':'"+dPwd+"'},'list':";
+                string titleStr = "'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'},'list':";
                 // 取代'""
-                string cc="\"";
-                titleStr=titleStr.Replace("'", cc);
+                string cc = "\"";
+                titleStr = titleStr.Replace("'", cc);
                 sendSB.Append(titleStr);
                 sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
                 sendSB.Append("}");
@@ -273,26 +256,27 @@ namespace ischoolAccountManagement
                 rsp.Close();
 
             }
-            #endregion           
+            #endregion    
         }
+
         void wizard_ValidateRow(object sender, SmartSchool.API.PlugIn.Import.ValidateRowEventArgs e)
         {
             #region 驗各欄位填寫格式
 
-            List<StudentRecord> StudentRecAllList = K12.Data.Student.SelectAll();
-            // 系統內學生帳號
+            List<TeacherRecord> TeacherRecAllList = K12.Data.Teacher.SelectAll();
+            // 系統內教師帳號
             Dictionary<string, string> StudSANameDict = new Dictionary<string, string>();
             Dictionary<string, string> StudSANameSnumDict = new Dictionary<string, string>();
 
-            foreach (StudentRecord rec in StudentRecAllList)
+            foreach (TeacherRecord rec in TeacherRecAllList)
             {
-                if (!StudSANameDict.ContainsKey(rec.SALoginName))
-                    StudSANameDict.Add(rec.SALoginName, rec.ID);
+                if (!StudSANameDict.ContainsKey(rec.TALoginName))
+                    StudSANameDict.Add(rec.TALoginName, rec.ID);
 
-                if(rec.Status == StudentRecord.StudentStatus.一般)
+                if (rec.Status == TeacherRecord.TeacherStatus.一般)
                 {
-                    if (!StudSANameSnumDict.ContainsKey(rec.SALoginName))
-                        StudSANameSnumDict.Add(rec.SALoginName, rec.StudentNumber);
+                    if (!StudSANameSnumDict.ContainsKey(rec.TALoginName))
+                        StudSANameSnumDict.Add(rec.TALoginName, rec.Name+rec.Nickname);
                 }
             }
 
@@ -304,31 +288,31 @@ namespace ischoolAccountManagement
                     default:
                         break;
 
-                    case "學號":
+                    case "教師姓名":
                         if (value.Replace(" ", "") == "")
                             e.ErrorFields.Add(field, "此欄為必填欄位。");
                         break;
-              
+
                     case "登入帳號":
-                        if(value !="")
+                        if (value != "")
                         {
                             if (StudSANameSnumDict.ContainsKey(value))
                             {
-                                if (e.Data.ContainsKey("學號"))
+                                if (e.Data.ContainsKey("教師姓名") && e.Data.ContainsKey("暱稱"))
                                 {
-                                    string SysNum = e.Data["學號"].ToString();
+                                    string SysNum = e.Data["教師姓名"].ToString() + e.Data["暱稱"].ToString();
                                     if (SysNum != StudSANameSnumDict[value])
-                                        e.ErrorFields.Add(field, "學生登入帳號已被使用，請修正");
+                                        e.ErrorFields.Add(field, "教師登入帳號已被" + e.Data["教師姓名"].ToString() + "使用，請修正");
                                 }
                             }
 
-                            if(StudSANameDict.ContainsKey(value))
+                            if (StudSANameDict.ContainsKey(value))
                             {
-                                if(e.Data.ContainsKey("學生系統編號"))
+                                if (e.Data.ContainsKey("教師系統編號"))
                                 {
-                                    string SysID = e.Data["學生系統編號"].ToString();
-                                    if(SysID !=StudSANameDict[value])
-                                        e.ErrorFields.Add(field, "學生登入帳號已被使用，請修正");
+                                    string SysID = e.Data["教師系統編號"].ToString();
+                                    if (SysID != StudSANameDict[value])
+                                        e.ErrorFields.Add(field, "教師登入帳號已被使用，請修正");
                                 }
                             }
 

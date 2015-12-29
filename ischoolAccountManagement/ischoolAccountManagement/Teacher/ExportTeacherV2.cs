@@ -394,7 +394,7 @@ namespace ischoolAccountManagement
                 List<string> teacherFieldList = new List<string>();
                 List<string> exportFieldList = new List<string>(_SelectedFields);
                 #region 取得選取欄位
-                for (int index = 0; index < 5; index++)
+                for (int index = 0; index < 3; index++)
                 {
                     if (listViewEx1.Items[index] != null && listViewEx1.Items[index].Checked)
                     {
@@ -640,7 +640,7 @@ namespace ischoolAccountManagement
                    SB.AppendLine("教師姓名「" + each.Name + "」暱稱「" + each.Nickname + "」。");
                     
                 }
-                ApplicationLog.Log("學籍系統.匯出", _Title, "已進行「" + _Title + "」操作。\n" + SB.ToString());
+                ApplicationLog.Log("匯出教師帳號", _Title, "已進行「" + _Title + "」操作。\n" + SB.ToString());
                 #endregion
 
                 if (overLimit)

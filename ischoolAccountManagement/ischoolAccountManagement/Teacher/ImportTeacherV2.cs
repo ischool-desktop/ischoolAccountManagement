@@ -19,7 +19,7 @@ namespace ischoolAccountManagement.Teacher
         private string _Title;
 
         private IntelliSchool.DSA.ClientFramework.ControlCommunication.ListViewCheckAllManager _CheckAllManager = new IntelliSchool.DSA.ClientFramework.ControlCommunication.ListViewCheckAllManager();
-        private List<string> _StudentFields = new List<string>(new string[] { "教師系統編號", "教師姓名", "姓", "名" });
+        private List<string> _StudentFields = new List<string>(new string[] { "教師系統編號", "教師姓名","暱稱" });
         private Dictionary<string, int> _ImportFields = new Dictionary<string, int>();
         private Workbook _WorkBook;
         private Workbook _ErrorWB = null;
@@ -38,8 +38,6 @@ namespace ischoolAccountManagement.Teacher
         public ImportTeacherV2(string title, Image img)
         {
             InitializeComponent();
-            InitializeComponent();
-
 
             #region 加入進階按紐跟HELP按鈕
             _OptionsContainer = new PanelEx();
@@ -315,7 +313,7 @@ namespace ischoolAccountManagement.Teacher
                     messingFields += (messingFields == "" ? "" : ",") + key;
                 }
             }
-            if (!_ImportFields.ContainsKey("教師系統編號") && !_ImportFields.ContainsKey("教師姓名+暱稱"))
+            if (!_ImportFields.ContainsKey("教師系統編號") && !_ImportFields.ContainsKey("教師姓名") && !_ImportFields.ContainsKey("暱稱"))
             {
                 messingFields += (messingFields == "" ? "" : ",") + "教師系統編號或教師姓名+暱稱";
             }
@@ -394,7 +392,7 @@ namespace ischoolAccountManagement.Teacher
         private void wizardPage3_AfterPageDisplayed(object sender, WizardPageChangeEventArgs e)
         {
             this.progressBarX1.Value = 0;
-            // 讀取畫面上選取學生狀態
+            // 讀取畫面上選取教師狀態
 
 
             lblWarningCount.Text = lblErrCount.Text = "0";
@@ -519,11 +517,11 @@ namespace ischoolAccountManagement.Teacher
 
             double progress = 0.0;
 
-            // 取得所有學生建立所引
-            Dictionary<string, TeacherRecord> chkStudRecDict = new Dictionary<string, TeacherRecord>();
-            List<TeacherRecord> AllStudenRecList = K12.Data.Teacher.SelectAll();
-            foreach (TeacherRecord rec in AllStudenRecList)
-                chkStudRecDict.Add(rec.ID, rec);
+            // 取得所有教師建立所引
+            Dictionary<string, TeacherRecord> chkTeacherRecDict = new Dictionary<string, TeacherRecord>();
+            List<TeacherRecord> AllTeacherRecList = K12.Data.Teacher.SelectAll();
+            foreach (TeacherRecord rec in AllTeacherRecList)
+                chkTeacherRecDict.Add(rec.ID, rec);
 
 
             #region 產生RowData資料
@@ -533,9 +531,9 @@ namespace ischoolAccountManagement.Teacher
                 #region 用編號驗證資料
                 for (int i = 1; i <= wb.Worksheets[0].Cells.MaxDataRow; i++)
                 {
-                    // , "教師姓名+暱稱", "班級", "座號", "科別", "姓名"
+                    
                     string id = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師系統編號"]].StringValue);
-                    if (chkStudRecDict.ContainsKey(id))
+                    if (chkTeacherRecDict.ContainsKey(id))
                     {
                         string rowError = "";
                         if (!chkStudentIDSameList.Contains(id))
@@ -543,14 +541,13 @@ namespace ischoolAccountManagement.Teacher
                         else
                             rowError = "工作表內 教師系統編號：" + id + " 資料重複";
                         #region 驗明正身
-                        TeacherRecord stu = chkStudRecDict[id];
+                        TeacherRecord stu = chkTeacherRecDict[id];
 
-                        //if (importFields.ContainsKey("教師姓名+暱稱") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名+暱稱"]].StringValue) != stu.StudentNumber)
-                        //{
-                        //    //rowError = "教師姓名+暱稱與系統內學生資料不同!!";
-                        //    rowError += (rowError == "" ? "" : "、\n") + "系統內學生教師姓名+暱稱為\"" + stu.StudentNumber + "\"";
-                        //}
-
+                        if (importFields.ContainsKey("教師姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue) != stu.Name)
+                        {
+                            //rowError = "教師姓名+暱稱與系統內教師資料不同!!";
+                            rowError += (rowError == "" ? "" : "、\n") + "系統內教師教師姓名為\"" + stu.Name + "\"";
+                        }
                         
 
                         #endregion
@@ -628,12 +625,12 @@ namespace ischoolAccountManagement.Teacher
                 }
                 #endregion
             }
-            else if (importFields.ContainsKey("教師姓名+暱稱"))
+            else if (importFields.ContainsKey("教師姓名"))
             {
                 // 建立教師姓名+暱稱狀態所引
                 Dictionary<string, TeacherRecord> StudNumberStatusDict = new Dictionary<string, TeacherRecord>();
                 List<string> chkWstSnumList = new List<string>();
-                foreach (TeacherRecord rec in AllStudenRecList)
+                foreach (TeacherRecord rec in AllTeacherRecList)
                 {
                     string key = rec.Name + rec.StatusStr;
                     if (!StudNumberStatusDict.ContainsKey(key))
@@ -642,11 +639,8 @@ namespace ischoolAccountManagement.Teacher
 
                 for (int i = 1; i <= wb.Worksheets[0].Cells.MaxDataRow; i++)
                 {
-                    string StuStatus = "一般";
-                    if (importFields.ContainsKey("狀態") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["狀態"]].StringValue) != "")
-                        StuStatus = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["狀態"]].StringValue);
-                    string wtNum = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名+暱稱"]].StringValue);
-                    string num = wtNum + StuStatus;
+                    string wtNum = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue) + GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["暱稱"]].StringValue);
+                    string num = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue)+GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["暱稱"]].StringValue)+"一般";
                     if (num != "")
                     {
                         string rowError = "";
@@ -655,7 +649,7 @@ namespace ischoolAccountManagement.Teacher
                             chkWstSnumList.Add(num);
                         else
                         {
-                            rowError = "工作表內 教師姓名+暱稱：" + wtNum + ",狀態：" + StuStatus + " 資料重複";
+                            rowError = "工作表內 教師姓名+暱稱：" + wtNum + " 資料重複";
 
                         }
                         TeacherRecord stu = null;
@@ -664,9 +658,9 @@ namespace ischoolAccountManagement.Teacher
                             TeacherRecord var = StudNumberStatusDict[num];
                             bool pass = true;
 
-                            if (importFields.ContainsKey("姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["姓名"]].StringValue) != var.Name)
+                            if (importFields.ContainsKey("教師姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue) != var.Name)
                             {
-                                rowError += (rowError == "" ? "" : "、\n") + "系統內學生姓名為\"" + var.Name + "\"";
+                                rowError += (rowError == "" ? "" : "、\n") + "系統內教師姓名為\"" + var.Name + "\"";
                                 pass = false;
                             }
                             if (pass)
@@ -682,7 +676,7 @@ namespace ischoolAccountManagement.Teacher
                                 // 檢查一般狀態是否存在，不存在新增一筆
                                 if (StudNumberStatusDict.ContainsKey(wtNum + "一般"))
                                 {
-                                    rowError = "教師姓名+暱稱" + wtNum + " 已經有學生使用，無法新增。";
+                                    rowError = "教師姓名+暱稱" + wtNum + " 已經有教師使用，無法新增。";
                                 }
                         
                             }

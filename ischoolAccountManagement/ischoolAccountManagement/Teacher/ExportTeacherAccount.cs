@@ -15,10 +15,11 @@ namespace ischoolAccountManagement
         {
             this.Image = null;
             this.Text = "匯出教師帳號";
-            _FieldNameList = new List<string>();            
+            _FieldNameList = new List<string>();
             _FieldNameList.Add("登入帳號");
             _FieldNameList.Add("密碼");
-
+            _FieldNameList.Add("姓");
+            _FieldNameList.Add("名");
         }
 
         public override void InitializeExport(SmartSchool.API.PlugIn.Export.ExportWizard wizard)
@@ -26,7 +27,7 @@ namespace ischoolAccountManagement
             wizard.ExportableFields.AddRange(_FieldNameList);
             wizard.ExportPackage += (sender, e) =>
             {
-                // 取得學生資料
+                // 取得教師資料
                 List<TeacherRecord> TeacherRecList = K12.Data.Teacher.SelectByIDs(e.List);
 
                 foreach (TeacherRecord TeacherRec in TeacherRecList)
