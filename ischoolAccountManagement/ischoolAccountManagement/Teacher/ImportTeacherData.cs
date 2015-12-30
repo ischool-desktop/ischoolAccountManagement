@@ -17,6 +17,9 @@ namespace ischoolAccountManagement
     {
         List<string> _FieldNameList = new List<string>();
         List<string> _Keys = new List<string>();
+        Dictionary<string, string> StudSANameDict = new Dictionary<string, string>();
+        Dictionary<string, string> StudSANameSnumDict = new Dictionary<string, string>();
+        List<TeacherRecord> TeacherRecAllList = new List<TeacherRecord>();
 
         public ImportTeacherData()
         {
@@ -59,6 +62,8 @@ namespace ischoolAccountManagement
                 FISCA.Presentation.Controls.MsgBox.Show(msg);
             }
 
+     
+
             wizard.Options.Add(setAccount);
             wizard.PackageLimit = 3000;
             //必需要有的欄位
@@ -66,14 +71,49 @@ namespace ischoolAccountManagement
             //可匯入的欄位
             wizard.ImportableFields.AddRange(_FieldNameList);
 
+            wizard.ValidateStart += wizard_ValidateStart;
             //驗證每行資料的事件
             wizard.ValidateRow += wizard_ValidateRow;
-
+            
             //實際匯入資料的事件
             wizard.ImportPackage += wizard_ImportPackage;
 
             //匯入完成
             wizard.ImportComplete += (sender, e) => MessageBox.Show("匯入完成!");
+        }
+
+        void wizard_ValidateStart(object sender, SmartSchool.API.PlugIn.Import.ValidateStartEventArgs e)
+        {
+            _Keys.Clear();
+            TeacherRecAllList = K12.Data.Teacher.SelectAll();
+            StudSANameDict.Clear();
+            StudSANameSnumDict.Clear();
+            List<string> idList = new List<string>();
+            foreach(string id in e.List)
+            {
+                idList.Add(id);
+            }
+
+            // 系統內教師帳號
+            foreach (TeacherRecord rec in TeacherRecAllList)
+            {
+                if (idList.Contains(rec.ID))
+                    rec.TALoginName = "";
+
+                string sKey = rec.TALoginName.ToLower().Replace(" ", "");
+
+                if (sKey != "")
+                {
+                    if (!StudSANameDict.ContainsKey(sKey))
+                        StudSANameDict.Add(sKey, rec.ID);
+
+                    if (rec.Status == TeacherRecord.TeacherStatus.一般)
+                    {
+                        if (!StudSANameSnumDict.ContainsKey(sKey))
+                            StudSANameSnumDict.Add(sKey, rec.Name + rec.Nickname);
+                    }
+                }
+            }
         }
 
         void wizard_ImportPackage(object sender, SmartSchool.API.PlugIn.Import.ImportPackageEventArgs e)
@@ -167,8 +207,8 @@ namespace ischoolAccountManagement
                 chkSend = true;
             }
 
+            // 記log
             StringBuilder sbLog = new StringBuilder();
-
             foreach (string TeacherID in RowDataDict.Keys)
             {
                 if (TeacherRecordDict.ContainsKey(TeacherID))
@@ -179,8 +219,45 @@ namespace ischoolAccountManagement
                     {
                         string value = rd["登入帳號"].ToString();
                         if (TeacherRecordDict[TeacherID].TALoginName != value)
-                            sbLog.AppendLine(string.Format("登入帳號由「{0}」改為「{1}」", TeacherRecordDict[TeacherID].TALoginName, value));
-                        TeacherRecordDict[TeacherID].TALoginName = value;
+                            sbLog.AppendLine(string.Format("登入帳號由「{0}」改為「{1}」", TeacherRecordDict[TeacherID].TALoginName, value));                          
+                    }
+                }
+            }
+
+            // 清除所選帳號
+            foreach (string TeacherID in RowDataDict.Keys)
+            {
+                if (TeacherRecordDict.ContainsKey(TeacherID))
+                {
+                    RowData rd = RowDataDict[TeacherID];
+                    if (rd.ContainsKey("登入帳號"))
+                    {
+                        string value = rd["登入帳號"].ToString();
+                        if(value!="")
+                            TeacherRecordDict[TeacherID].TALoginName ="";
+                        updateTeacherRecList.Add(TeacherRecordDict[TeacherID]);
+                    }
+                }
+            }
+            K12.Data.Teacher.Update(updateTeacherRecList);
+            updateTeacherRecList.Clear();
+
+            // 寫入新帳號
+            foreach (string TeacherID in RowDataDict.Keys)
+            {
+                if (TeacherRecordDict.ContainsKey(TeacherID))
+                {
+                    RowData rd = RowDataDict[TeacherID];
+                    if (rd.ContainsKey("登入帳號"))
+                    {
+                        string value = rd["登入帳號"].ToString();
+                        if (value != "")
+                        {
+                            if (!value.Contains("@") && dName != "")
+                                value = value + "@" + dName;
+
+                            TeacherRecordDict[TeacherID].TALoginName = value;
+                        }
                         updateTeacherRecList.Add(TeacherRecordDict[TeacherID]);
                     }
                 }
@@ -204,7 +281,7 @@ namespace ischoolAccountManagement
                         uAcc.Account = Row["登入帳號"].ToString();
 
                         // 檢查Account 是否有帶@，沒有自動加入。
-                        if (!uAcc.Account.Contains("@"))
+                        if (!uAcc.Account.Contains("@") && dName !="")
                             uAcc.Account += uAcc.Account + "@" + dName;
 
                     }
@@ -221,6 +298,7 @@ namespace ischoolAccountManagement
                     UserAccountList.Add(uAcc);
                 }
                 string dsns = FISCA.Authentication.DSAServices.AccessPoint;
+
                 string url = @"https://auth.ischool.com.tw/c/1campus.service/applicationAccounts.php";
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Method = "POST";
@@ -254,31 +332,16 @@ namespace ischoolAccountManagement
                 reader.Close();
                 dataStream.Close();
                 rsp.Close();
-
+                if (!responseFromServer.Contains("success"))
+                    FISCA.Presentation.Controls.MsgBox.Show("上傳網域帳號失敗," + responseFromServer);
             }
             #endregion    
         }
 
         void wizard_ValidateRow(object sender, SmartSchool.API.PlugIn.Import.ValidateRowEventArgs e)
         {
-            #region 驗各欄位填寫格式
-
-            List<TeacherRecord> TeacherRecAllList = K12.Data.Teacher.SelectAll();
-            // 系統內教師帳號
-            Dictionary<string, string> StudSANameDict = new Dictionary<string, string>();
-            Dictionary<string, string> StudSANameSnumDict = new Dictionary<string, string>();
-
-            foreach (TeacherRecord rec in TeacherRecAllList)
-            {
-                if (!StudSANameDict.ContainsKey(rec.TALoginName))
-                    StudSANameDict.Add(rec.TALoginName, rec.ID);
-
-                if (rec.Status == TeacherRecord.TeacherStatus.一般)
-                {
-                    if (!StudSANameSnumDict.ContainsKey(rec.TALoginName))
-                        StudSANameSnumDict.Add(rec.TALoginName, rec.Name+rec.Nickname);
-                }
-            }
+            #region 驗各欄位填寫格式            
+        
 
             foreach (string field in e.SelectFields)
             {
@@ -296,6 +359,8 @@ namespace ischoolAccountManagement
                     case "登入帳號":
                         if (value != "")
                         {
+                            value = value.ToLower().Replace(" ", "");
+
                             if (StudSANameSnumDict.ContainsKey(value))
                             {
                                 if (e.Data.ContainsKey("教師姓名") && e.Data.ContainsKey("暱稱"))
@@ -323,13 +388,19 @@ namespace ischoolAccountManagement
             #endregion
             #region 驗證主鍵
 
-            string Key = e.Data.ID;
+
+            string Key = "";
+            if (e.Data.ContainsKey("登入帳號"))
+            {
+                Key = e.Data["登入帳號"].ToLower().Replace(" ", "");
+            }
             string errorMessage = string.Empty;
 
-            if (_Keys.Contains(Key))
-                errorMessage = "";
-            else
-                _Keys.Add(Key);
+            if (!string.IsNullOrWhiteSpace(Key))
+                if (_Keys.Contains(Key))
+                    errorMessage = "登入帳號重複，無法匯入。";
+                else
+                    _Keys.Add(Key);
 
             e.ErrorMessage = errorMessage;
 
