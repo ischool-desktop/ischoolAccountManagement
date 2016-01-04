@@ -298,8 +298,13 @@ namespace ischoolAccountManagement
                     UserAccountList.Add(uAcc);
                 }
                 string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-
+                
+                // Taiwan
                 string url = @"https://auth.ischool.com.tw/c/1campus.service/applicationAccounts.php";
+
+                //// China
+                //string url = @"https://auth.ischoolcenter.com/c/1campus.service/applicationAccounts.php";
+
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Method = "POST";
                 req.Accept = "*/*";
@@ -313,6 +318,7 @@ namespace ischoolAccountManagement
                 sendSB.Append(titleStr);
                 sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
                 sendSB.Append("}");
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
                 byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
                 req.ContentLength = byteArray.Length;
