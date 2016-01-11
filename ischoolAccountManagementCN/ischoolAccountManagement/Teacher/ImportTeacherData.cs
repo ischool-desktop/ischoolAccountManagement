@@ -54,15 +54,20 @@ namespace ischoolAccountManagement
             {
                 if (chkAdData.Account.Trim() == "" || chkAdData.Password.Trim() == "" || chkAdData.Domain.Trim() == "")
                     chkAdDataErr = true;
-            }
+            }                 
 
             if (chkAdDataErr)
             {
                 string msg = "網路管理者帳號未設定或設定不完整，無法上傳教師網域帳號，請至進階 設定網域管理者帳號";
+             
                 FISCA.Presentation.Controls.MsgBox.Show(msg);
             }
 
-     
+            // 檢查帳號是否可以登入
+            if (chkAdDataErr == false)
+            {
+                Utility.CheckAdminPWD("teacher");
+            }     
 
             wizard.Options.Add(setAccount);
             wizard.PackageLimit = 3000;
@@ -298,12 +303,7 @@ namespace ischoolAccountManagement
                     UserAccountList.Add(uAcc);
                 }
                 string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-                
-                //// Taiwan
-                //string url = @"https://auth.ischool.com.tw/c/1campus.service/applicationAccounts.php";
-
-                // China
-                string url = @"https://auth.ischoolcenter.com/c/1campus.service/applicationAccounts.php";
+                string url = Config.ChinaUrl;
 
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Method = "POST";

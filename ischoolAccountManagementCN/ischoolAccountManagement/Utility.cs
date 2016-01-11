@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using ischoolAccountManagement.DAO;
 using FISCA.UDT;
+using System.Net;
+using System.IO;
 
 namespace ischoolAccountManagement
 {
@@ -34,6 +36,60 @@ namespace ischoolAccountManagement
                 value = aData[0];
 
             return value;
+        }
+
+        /// <summary>
+        /// 檢查帳號是否可以登入
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool CheckAdminPWD(string type)
+        {
+            bool pass = true;
+            // 取得主機帳號密碼
+            UDT_AdminData admin = GetAdminData(type);
+
+            string dsns = FISCA.Authentication.DSAServices.AccessPoint;
+            string url = Config.ChinaUrl;
+
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+            req.Method = "POST";
+            req.Accept = "*/*";
+            req.ContentType = "application/json";
+            StringBuilder sendSB = new StringBuilder();
+            sendSB.Append("{");
+            string titleStr = "'application':'" + dsns + "','domain':{'name':'" + admin.Domain + "','acc':'" + admin.Account + "','pwd':'" +Utility.ConvertBase64StringToString(admin.Password) + "'}";
+            // 取代'""
+            string cc = "\"";
+            titleStr = titleStr.Replace("'", cc);
+            sendSB.Append(titleStr);            
+            sendSB.Append("}");
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+            byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
+            req.ContentLength = byteArray.Length;
+            Stream dataStream = req.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+
+            HttpWebResponse rsp;
+            rsp = (HttpWebResponse)req.GetResponse();
+            //= req.GetResponse();
+            dataStream = rsp.GetResponseStream();
+
+            // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
+            StreamReader reader = new StreamReader(dataStream);
+            // Read the content.
+            string responseFromServer = reader.ReadToEnd();
+            reader.Close();
+            dataStream.Close();
+            rsp.Close();
+            if (!responseFromServer.Contains("success"))
+            {
+                pass = false;
+                FISCA.Presentation.Controls.MsgBox.Show("網域帳號登入失敗," + responseFromServer);
+            }
+            // 登入測試
+            return pass;
         }
     }
 }

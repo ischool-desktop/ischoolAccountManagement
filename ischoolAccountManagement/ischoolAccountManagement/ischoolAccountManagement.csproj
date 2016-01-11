@@ -134,6 +134,7 @@
     <Compile Include="Admin\AdminForm.Designer.cs">
       <DependentUpon>AdminForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Config.cs" />
     <Compile Include="DAO\Service.cs" />
     <Compile Include="DAO\UDT_AdminData.cs" />
     <Compile Include="Program.cs" />

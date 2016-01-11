@@ -62,7 +62,11 @@ namespace ischoolAccountManagement
                 FISCA.Presentation.Controls.MsgBox.Show(msg);
             }
 
-     
+            // 檢查帳號是否可以登入
+            if (chkAdDataErr == false)
+            {
+                Utility.CheckAdminPWD("teacher");
+            }     
 
             wizard.Options.Add(setAccount);
             wizard.PackageLimit = 3000;
@@ -298,13 +302,8 @@ namespace ischoolAccountManagement
                     UserAccountList.Add(uAcc);
                 }
                 string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-                
-                // Taiwan
-                string url = @"https://auth.ischool.com.tw/c/1campus.service/applicationAccounts.php";
-
-                //// China
-                //string url = @"https://auth.ischoolcenter.com/c/1campus.service/applicationAccounts.php";
-
+                                
+                string url = Config.TaiwanUrl;
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Method = "POST";
                 req.Accept = "*/*";

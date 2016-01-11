@@ -52,6 +52,12 @@ namespace ischoolAccountManagement
                 FISCA.Presentation.Controls.MsgBox.Show(msg);
             }
 
+            // 檢查帳號是否可以登入
+            if (chkAdDataErr == false)
+            {
+                Utility.CheckAdminPWD("student");
+            }     
+
             VirtualCheckBox setAccount = new VirtualCheckBox("設定網域管理者帳號", false);
             setAccount.CheckedChanged += delegate { 
             if(setAccount.Checked)
@@ -315,13 +321,8 @@ namespace ischoolAccountManagement
                     UserAccountList.Add(uAcc);
                 }
                 string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-
-                // Taiwan
-                string url = @"https://auth.ischool.com.tw/c/1campus.service/applicationAccounts.php";
-
-                //// China
-                //string url = @"https://auth.ischoolcenter.com/c/1campus.service/applicationAccounts.php";
-
+                
+                string url = Config.TaiwanUrl;
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Method = "POST";
                 req.Accept = "*/*";
