@@ -3,14 +3,14 @@
     partial class ExportTeacherV2
     {
         /// <summary>
-        /// 設計工具所需的變數。
+        /// 设计工具所需的变数。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// 清除任何使用中的資源。
+        /// 清除任何使用中的资源。
         /// </summary>
-        /// <param name="disposing">如果應該公開 Managed 資源則為 true，否則為 false。</param>
+        /// <param name="disposing">如果应该公开 Managed 资源则为 true，否则为 false。</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,17 +20,17 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form 設計工具產生的程式碼
+        #region Windows Form 设计工具产生的程序代码
 
         /// <summary>
-        /// 此為設計工具支援所需的方法 - 請勿使用程式碼編輯器修改這個方法的內容。
+        /// 此为设计工具支持所需的方法 - 请勿使用程序代码编辑器修改这个方法的内容。
         ///
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("教師系統編號");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("教師姓名");
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("暱稱");
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("教师系统编号");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("教师姓名");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("昵称");
             this.wizard1 = new DevComponents.DotNetBar.Wizard();
             this.wizardPage1 = new DevComponents.DotNetBar.WizardPage();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -43,11 +43,11 @@
             // 
             this.wizard1.BackColor = System.Drawing.Color.Transparent;
             this.wizard1.ButtonStyle = DevComponents.DotNetBar.eWizardStyle.Office2007;
-            this.wizard1.CancelButtonText = "關閉";
+            this.wizard1.CancelButtonText = "关闭";
             this.wizard1.Cursor = System.Windows.Forms.Cursors.Default;
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.FinishButtonTabIndex = 3;
-            this.wizard1.FinishButtonText = "匯出";
+            this.wizard1.FinishButtonText = "汇出";
             this.wizard1.FooterHeight = 33;
             // 
             // 
@@ -89,8 +89,8 @@
             // 
             // wizardPage1
             // 
-            this.wizardPage1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.wizardPage1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.wizardPage1.AntiAlias = false;
             this.wizardPage1.BackButtonVisible = DevComponents.DotNetBar.eWizardButtonState.False;
@@ -101,7 +101,7 @@
             this.wizardPage1.Location = new System.Drawing.Point(7, 72);
             this.wizardPage1.Name = "wizardPage1";
             this.wizardPage1.NextButtonVisible = DevComponents.DotNetBar.eWizardButtonState.False;
-            this.wizardPage1.PageDescription = "選擇匯出欄位";
+            this.wizardPage1.PageDescription = "选择汇出字段";
             this.wizardPage1.Size = new System.Drawing.Size(450, 206);
             // 
             // 
@@ -127,13 +127,13 @@
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(79, 21);
             this.checkBox1.TabIndex = 2;
-            this.checkBox1.Text = "選取全部";
+            this.checkBox1.Text = "选取全部";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // listViewEx1
             // 
-            this.listViewEx1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.listViewEx1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listViewEx1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listViewEx1.CheckBoxes = true;

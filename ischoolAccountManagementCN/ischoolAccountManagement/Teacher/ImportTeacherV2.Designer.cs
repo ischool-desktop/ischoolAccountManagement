@@ -3,14 +3,14 @@
     partial class ImportTeacherV2
     {
         /// <summary>
-        /// 設計工具所需的變數。
+        /// 设计工具所需的变数。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// 清除任何使用中的資源。
+        /// 清除任何使用中的资源。
         /// </summary>
-        /// <param name="disposing">如果應該公開 Managed 資源則為 true，否則為 false。</param>
+        /// <param name="disposing">如果应该公开 Managed 资源则为 true，否则为 false。</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,10 +20,10 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form 設計工具產生的程式碼
+        #region Windows Form 设计工具产生的程序代码
 
         /// <summary>
-        /// 此為設計工具支援所需的方法 - 請勿使用程式碼編輯器修改這個方法的內容。
+        /// 此为设计工具支持所需的方法 - 请勿使用程序代码编辑器修改这个方法的内容。
         ///
         /// </summary>
         private void InitializeComponent()
@@ -65,11 +65,11 @@
             this.wizard1.BackButtonText = "上一步";
             this.wizard1.BackColor = System.Drawing.Color.Transparent;
             this.wizard1.ButtonStyle = DevComponents.DotNetBar.eWizardStyle.Office2007;
-            this.wizard1.CancelButtonText = "關閉";
+            this.wizard1.CancelButtonText = "关闭";
             this.wizard1.Cursor = System.Windows.Forms.Cursors.Default;
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.FinishButtonTabIndex = 3;
-            this.wizard1.FinishButtonText = "開始匯入";
+            this.wizard1.FinishButtonText = "开始汇入";
             this.wizard1.FooterHeight = 33;
             // 
             // 
@@ -128,7 +128,7 @@
             this.wizardPage1.Location = new System.Drawing.Point(7, 72);
             this.wizardPage1.Name = "wizardPage1";
             this.wizardPage1.NextButtonEnabled = DevComponents.DotNetBar.eWizardButtonState.False;
-            this.wizardPage1.PageDescription = "選取匯入檔案";
+            this.wizardPage1.PageDescription = "选取汇入档案";
             this.wizardPage1.Size = new System.Drawing.Size(450, 228);
             // 
             // 
@@ -162,7 +162,7 @@
             this.chkTrim.Name = "chkTrim";
             this.chkTrim.Size = new System.Drawing.Size(161, 21);
             this.chkTrim.TabIndex = 4;
-            this.chkTrim.Text = "自動過慮頭尾空白字元";
+            this.chkTrim.Text = "自动过虑头尾空格符";
             this.chkTrim.CheckedChanged += new System.EventHandler(this.chkTrim_CheckedChanged);
             // 
             // linkLabel2
@@ -206,7 +206,7 @@
             this.labelX1.Name = "labelX1";
             this.labelX1.Size = new System.Drawing.Size(74, 21);
             this.labelX1.TabIndex = 2;
-            this.labelX1.Text = "必要欄位：";
+            this.labelX1.Text = "必要字段：";
             // 
             // buttonX1
             // 
@@ -246,7 +246,7 @@
             this.wizardPage2.Controls.Add(this.listView1);
             this.wizardPage2.Location = new System.Drawing.Point(7, 72);
             this.wizardPage2.Name = "wizardPage2";
-            this.wizardPage2.PageDescription = "選取匯入欄位";
+            this.wizardPage2.PageDescription = "选取汇入字段";
             this.wizardPage2.Size = new System.Drawing.Size(450, 228);
             // 
             // 
@@ -273,7 +273,7 @@
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(79, 21);
             this.checkBox1.TabIndex = 1;
-            this.checkBox1.Text = "全部選取";
+            this.checkBox1.Text = "全部选取";
             this.checkBox1.UseVisualStyleBackColor = false;
             // 
             // listView1
@@ -310,7 +310,7 @@
             this.wizardPage3.Location = new System.Drawing.Point(7, 72);
             this.wizardPage3.Name = "wizardPage3";
             this.wizardPage3.NextButtonVisible = DevComponents.DotNetBar.eWizardButtonState.False;
-            this.wizardPage3.PageDescription = "驗證匯入資料";
+            this.wizardPage3.PageDescription = "验证汇入数据";
             this.wizardPage3.Size = new System.Drawing.Size(450, 228);
             // 
             // 
@@ -341,7 +341,7 @@
             this.linkLabel3.Size = new System.Drawing.Size(60, 17);
             this.linkLabel3.TabIndex = 4;
             this.linkLabel3.TabStop = true;
-            this.linkLabel3.Text = "終止驗證";
+            this.linkLabel3.Text = "终止验证";
             this.linkLabel3.Visible = false;
             this.linkLabel3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel3_LinkClicked);
             // 
@@ -354,7 +354,7 @@
             this.linkLabel1.Size = new System.Drawing.Size(99, 17);
             this.linkLabel1.TabIndex = 3;
             this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "檢視驗證後資料";
+            this.linkLabel1.Text = "检视验证后数据";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // lblErrCount
@@ -385,7 +385,7 @@
             this.labelX4.Name = "labelX4";
             this.labelX4.Size = new System.Drawing.Size(101, 21);
             this.labelX4.TabIndex = 2;
-            this.labelX4.Text = "錯誤資料筆數：";
+            this.labelX4.Text = "错误数据笔数：";
             // 
             // lblWarningCount
             // 
@@ -415,7 +415,7 @@
             this.labelX3.Name = "labelX3";
             this.labelX3.Size = new System.Drawing.Size(101, 21);
             this.labelX3.TabIndex = 2;
-            this.labelX3.Text = "警告資料筆數：";
+            this.labelX3.Text = "警告资料笔数：";
             // 
             // progressBarX1
             // 
@@ -444,11 +444,11 @@
             this.labelX2.Name = "labelX2";
             this.labelX2.Size = new System.Drawing.Size(74, 21);
             this.labelX2.TabIndex = 0;
-            this.labelX2.Text = "資料驗證中";
+            this.labelX2.Text = "数据验证中";
             // 
             // SelectSourceFileDialog
             // 
-            this.SelectSourceFileDialog.Filter = "Excel 檔案 (*.xls)| *.xls";
+            this.SelectSourceFileDialog.Filter = "Excel 档案 (*.xls)| *.xls";
             // 
             // errorFile
             // 

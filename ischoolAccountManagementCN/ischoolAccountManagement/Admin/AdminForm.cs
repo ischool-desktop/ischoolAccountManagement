@@ -14,19 +14,19 @@ namespace ischoolAccountManagement.Admin
 {
     public partial class AdminForm : BaseForm
     {
-        private string _Title = "網域管理者帳號設定";
-        private string _AccountType="";
-        UDT_AdminData _AdminData = null;        
-        
+        private string _Title = "网域管理者账号设定";
+        private string _AccountType = "";
+        UDT_AdminData _AdminData = null;
+
         public AdminForm(string AccountType)
         {
             _AccountType = AccountType;
             InitializeComponent();
             if (_AccountType == "student")
-                _Title += "(學生)";
+                _Title += "(学生)";
 
             if (_AccountType == "teacher")
-                _Title += "(教師)";
+                _Title += "(教师)";
             this.Text = _Title;
         }
 
@@ -37,21 +37,21 @@ namespace ischoolAccountManagement.Admin
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if(string.IsNullOrWhiteSpace(txtDomain.Text))
+            if (string.IsNullOrWhiteSpace(txtDomain.Text))
             {
-                MsgBox.Show("網域必填。");
+                MsgBox.Show("网域必填。");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(txtAccount.Text))
             {
-                MsgBox.Show("帳號必填。");
+                MsgBox.Show("账号必填。");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                MsgBox.Show("密碼必填。");
+                MsgBox.Show("密码必填。");
                 return;
             }
 
@@ -65,11 +65,12 @@ namespace ischoolAccountManagement.Admin
                 _AdminData.Password = Utility.ConvertStringToBase64String(txtPassword.Text);
                 _AdminData.Type = _AccountType;
                 _AdminData.Save();
-                MsgBox.Show("儲存完成");
+                MsgBox.Show("储存完成");
                 this.Close();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                MsgBox.Show("儲存過程發生錯誤" + ex.Message);
+                MsgBox.Show("储存过程发生错误" + ex.Message);
             }
         }
 
@@ -77,7 +78,7 @@ namespace ischoolAccountManagement.Admin
         {
             txtAccount.Enabled = txtDomain.Enabled = txtPassword.Enabled = btnSave.Enabled = false;
 
-            // 載入 udt 帳號資料
+            // 加载 udt 账号数据
             try
             {
                 AccessHelper accHelper = new AccessHelper();
@@ -92,7 +93,8 @@ namespace ischoolAccountManagement.Admin
                     txtDomain.Text = _AdminData.Domain;
                     txtPassword.Text = Utility.ConvertBase64StringToString(_AdminData.Password);
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
 
             }
@@ -101,3 +103,4 @@ namespace ischoolAccountManagement.Admin
         }
     }
 }
+

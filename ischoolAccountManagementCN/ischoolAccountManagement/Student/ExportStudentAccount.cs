@@ -15,10 +15,10 @@ namespace ischoolAccountManagement.Student
         public ExportStudentAccount()
         {
             this.Image = null;
-            this.Text = "匯出學生帳號";
+            this.Text = "汇出学生账号";
             _FieldNameList = new List<string>();
-            _FieldNameList.Add("登入帳號");
-            _FieldNameList.Add("密碼");
+            _FieldNameList.Add("登入账号");
+            _FieldNameList.Add("密码");
             _FieldNameList.Add("姓");
             _FieldNameList.Add("名");
         }
@@ -27,9 +27,9 @@ namespace ischoolAccountManagement.Student
             wizard.ExportableFields.AddRange(_FieldNameList);
             wizard.ExportPackage += (sender, e) =>
             {
-                // 取得學生資料
+                // 取得学生资料
                 List<StudentRecord> StudentRecList = K12.Data.Student.SelectByIDs(e.List);
-                               
+
                 foreach (StudentRecord StudRec in StudentRecList)
                 {
                     RowData row = new RowData();
@@ -41,7 +41,7 @@ namespace ischoolAccountManagement.Student
                         {
                             switch (field)
                             {
-                                case "登入帳號": row.Add(field, StudRec.SALoginName); break;                  
+                                case "登入账号": row.Add(field, StudRec.SALoginName); break;
                             }
                         }
                     }
@@ -74,3 +74,4 @@ namespace ischoolAccountManagement.Student
         }
     }
 }
+

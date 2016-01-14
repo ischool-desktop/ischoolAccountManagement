@@ -19,7 +19,7 @@ namespace ischoolAccountManagement.Teacher
         private string _Title;
 
         private IntelliSchool.DSA.ClientFramework.ControlCommunication.ListViewCheckAllManager _CheckAllManager = new IntelliSchool.DSA.ClientFramework.ControlCommunication.ListViewCheckAllManager();
-        private List<string> _StudentFields = new List<string>(new string[] { "教師系統編號", "教師姓名","暱稱" });
+        private List<string> _StudentFields = new List<string>(new string[] { "教师系统编号", "教师姓名", "昵称" });
         private Dictionary<string, int> _ImportFields = new Dictionary<string, int>();
         private Workbook _WorkBook;
         private Workbook _ErrorWB = null;
@@ -39,7 +39,7 @@ namespace ischoolAccountManagement.Teacher
         {
             InitializeComponent();
 
-            #region 加入進階按紐跟HELP按鈕
+            #region 加入进阶按纽跟HELP按钮
             _OptionsContainer = new PanelEx();
             _OptionsContainer.Font = this.Font;
             _OptionsContainer.ColorSchemeStyle = eDotNetBarStyle.Office2007;
@@ -66,7 +66,7 @@ namespace ischoolAccountManagement.Teacher
 
             advButton = new ButtonX();
             advButton.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
-            advButton.Text = "    進階";
+            advButton.Text = "    进阶";
             advButton.Top = this.wizard1.Controls[1].Controls[0].Top;
             advButton.Left = 5;
             advButton.Size = this.wizard1.Controls[1].Controls[0].Size;
@@ -95,7 +95,7 @@ namespace ischoolAccountManagement.Teacher
             this.wizard1.Controls[1].Controls.Add(helpButton);
             #endregion
 
-            #region 設定Wizard會跟著Style跑
+            #region 设定Wizard会跟着Style跑
             //this.wizard1.FooterStyle.ApplyStyle(( GlobalManager.Renderer as Office2007Renderer ).ColorTable.GetClass(ElementStyleClassKeys.RibbonFileMenuBottomContainerKey));
             this.wizard1.HeaderStyle.ApplyStyle((GlobalManager.Renderer as Office2007Renderer).ColorTable.GetClass(ElementStyleClassKeys.RibbonFileMenuBottomContainerKey));
             this.wizard1.FooterStyle.BackColorGradientAngle = -90;
@@ -116,7 +116,7 @@ namespace ischoolAccountManagement.Teacher
 
             _Title = this.Text = title;
 
-            lblReqFields.Text = "<font color=\"#7A4E2B\"><b>教師系統編號 或 教師姓名+暱稱</b></font>";
+            lblReqFields.Text = "<font color=\"#7A4E2B\"><b>教师系统编号 或 教师姓名+昵称</b></font>";
 
             foreach (WizardPage page in wizard1.WizardPages)
             {
@@ -179,7 +179,7 @@ namespace ischoolAccountManagement.Teacher
                         item.TextChanged += new EventHandler(syncCheckBox);
                         item.EnabledChanged += new EventHandler(syncCheckBox);
                         checkbox.Location = new Point(9, Y);
-                        _OptionsContainer.Controls.Add(checkbox);//要先加入Panel後抓Size才準
+                        _OptionsContainer.Controls.Add(checkbox);//要先加入Panel后抓Size才准
                         Y += checkbox.Height + speace;
                         if (checkbox.PreferredSize.Width + 25 > width)
                             width = checkbox.PreferredSize.Width + 25;
@@ -289,7 +289,7 @@ namespace ischoolAccountManagement.Teacher
                     _ImportableFields.Add(field);
                 }
             }
-            lblReqFields.Text = "<font color=\"#7A4E2B\"><b>教師系統編號 或 教師姓名+暱稱</b></font>";
+            lblReqFields.Text = "<font color=\"#7A4E2B\"><b>教师系统编号 或 教师姓名+昵称</b></font>";
             foreach (string req in _RequiredFields)
             {
                 lblReqFields.Text += " 、 " + "<font color=\"#7A4E2B\"><b>" + req + "</b></font>";
@@ -313,14 +313,14 @@ namespace ischoolAccountManagement.Teacher
                     messingFields += (messingFields == "" ? "" : ",") + key;
                 }
             }
-            if (!_ImportFields.ContainsKey("教師系統編號") && !_ImportFields.ContainsKey("教師姓名") && !_ImportFields.ContainsKey("暱稱"))
+            if (!_ImportFields.ContainsKey("教师系统编号") && !_ImportFields.ContainsKey("教师姓名") && !_ImportFields.ContainsKey("昵称"))
             {
-                messingFields += (messingFields == "" ? "" : ",") + "教師系統編號或教師姓名+暱稱";
+                messingFields += (messingFields == "" ? "" : ",") + "教师系统编号或教师姓名+昵称";
             }
             if (messingFields != "")
             {
                 errorFile.SetIconAlignment(txtFile, ErrorIconAlignment.MiddleLeft);
-                errorFile.SetError(txtFile, "缺少必要欄位:\n" + messingFields);
+                errorFile.SetError(txtFile, "缺少必要字段:\n" + messingFields);
                 return;
             }
             listView1.SuspendLayout();
@@ -366,13 +366,13 @@ namespace ischoolAccountManagement.Teacher
             catch
             {
                 errorFile.SetIconAlignment(txtFile, ErrorIconAlignment.MiddleLeft);
-                errorFile.SetError(txtFile, "檔案不存在、格式錯誤或檔案開啟中無法讀取。");
+                errorFile.SetError(txtFile, "档案不存在、格式错误或档案开启中无法读取。");
                 this.UseWaitCursor = false;
                 return;
             }
             linkLabel2.Visible = true;
             this.UseWaitCursor = false;
-            //讀取檔案內所有的欄位
+            //读取档案内所有的字段
             for (int i = 0; i <= (int)_WorkBook.Worksheets[0].Cells.MaxColumn; i++)
             {
                 if (GetTrimText("" + _WorkBook.Worksheets[0].Cells[0, i].StringValue) != "")
@@ -392,13 +392,13 @@ namespace ischoolAccountManagement.Teacher
         private void wizardPage3_AfterPageDisplayed(object sender, WizardPageChangeEventArgs e)
         {
             this.progressBarX1.Value = 0;
-            // 讀取畫面上選取教師狀態
+            // 读取画面上选取教师状态
 
 
             lblWarningCount.Text = lblErrCount.Text = "0";
             this.wizardPage3.FinishButtonEnabled = eWizardButtonState.False;
             linkLabel1.Visible = false;
-            labelX2.Text = "資料驗證中";
+            labelX2.Text = "数据验证中";
             linkLabel3.Tag = null;
             linkLabel3.Visible = false;
             Application.DoEvents();
@@ -459,7 +459,7 @@ namespace ischoolAccountManagement.Teacher
                 for (; ; errc++)
                 {
                     bool pass = true;
-                    string n = "錯誤&警告說明" + (errc == 0 ? "" : "(" + errc + ")");
+                    string n = "错误&警告说明" + (errc == 0 ? "" : "(" + errc + ")");
                     foreach (Aspose.Cells.Worksheet var in wb.Worksheets)
                     {
                         if (n == var.Name)
@@ -471,13 +471,13 @@ namespace ischoolAccountManagement.Teacher
                     if (pass) break;
                 }
                 #endregion
-                wb.Worksheets[errorSheetIndex].Name = "錯誤&警告說明" + (errc == 0 ? "" : "(" + errc + ")");
+                wb.Worksheets[errorSheetIndex].Name = "错误&警告说明" + (errc == 0 ? "" : "(" + errc + ")");
             }
             string errorSheetName = wb.Worksheets[errorSheetIndex].Name;
             Worksheet errorSheet = wb.Worksheets[errorSheetIndex];
-            errorSheet.Cells[0, 0].PutValue("行號");
-            errorSheet.Cells[0, 1].PutValue("種類");
-            errorSheet.Cells[0, 2].PutValue("說明");
+            errorSheet.Cells[0, 0].PutValue("行号");
+            errorSheet.Cells[0, 1].PutValue("种类");
+            errorSheet.Cells[0, 2].PutValue("说明");
             int errorSheetRowIndex = 1;
 
             Style errorStyle = wb.Styles[wb.Styles.Add()];
@@ -517,38 +517,38 @@ namespace ischoolAccountManagement.Teacher
 
             double progress = 0.0;
 
-            // 取得所有教師建立所引
+            // 取得所有教师建立所引
             Dictionary<string, TeacherRecord> chkTeacherRecDict = new Dictionary<string, TeacherRecord>();
             List<TeacherRecord> AllTeacherRecList = K12.Data.Teacher.SelectAll();
             foreach (TeacherRecord rec in AllTeacherRecList)
                 chkTeacherRecDict.Add(rec.ID, rec);
 
 
-            #region 產生RowData資料
-            if (importFields.ContainsKey("教師系統編號"))
+            #region 产生RowData数据
+            if (importFields.ContainsKey("教师系统编号"))
             {
                 List<string> chkStudentIDSameList = new List<string>();
-                #region 用編號驗證資料
+                #region 用编号验证数据
                 for (int i = 1; i <= wb.Worksheets[0].Cells.MaxDataRow; i++)
                 {
-                    
-                    string id = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師系統編號"]].StringValue);
+
+                    string id = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教师系统编号"]].StringValue);
                     if (chkTeacherRecDict.ContainsKey(id))
                     {
                         string rowError = "";
                         if (!chkStudentIDSameList.Contains(id))
                             chkStudentIDSameList.Add(id);
                         else
-                            rowError = "工作表內 教師系統編號：" + id + " 資料重複";
-                        #region 驗明正身
+                            rowError = "工作表内 教师系统编号：" + id + " 数据重复";
+                        #region 验明正身
                         TeacherRecord stu = chkTeacherRecDict[id];
 
-                        if (importFields.ContainsKey("教師姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue) != stu.Name)
+                        if (importFields.ContainsKey("教师姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教师姓名"]].StringValue) != stu.Name)
                         {
-                            //rowError = "教師姓名+暱稱與系統內教師資料不同!!";
-                            rowError += (rowError == "" ? "" : "、\n") + "系統內教師教師姓名為\"" + stu.Name + "\"";
+                            //rowError = "教师姓名+昵称与系统内教师数据不同!!";
+                            rowError += (rowError == "" ? "" : "、\n") + "系统内教师教师姓名为\"" + stu.Name + "\"";
                         }
-                        
+
 
                         #endregion
                         if (rowError == "")
@@ -570,7 +570,7 @@ namespace ischoolAccountManagement.Teacher
                         {
                             errorCount++;
                             errorSheet.Cells[errorSheetRowIndex, 0].PutValue(i + 1);
-                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("錯誤");
+                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("错误");
                             errorSheet.Cells[errorSheetRowIndex, 2].PutValue(rowError);
                             errorSheet.Cells[errorSheetRowIndex, 0].Style = errorStyle;
                             errorSheet.Cells[errorSheetRowIndex, 1].Style = errorStyle2;
@@ -594,15 +594,15 @@ namespace ischoolAccountManagement.Teacher
                         {
                             errorCount++;
                             errorSheet.Cells[errorSheetRowIndex, 0].PutValue(i + 1);
-                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("錯誤");
-                            errorSheet.Cells[errorSheetRowIndex, 2].PutValue("驗證欄位(教師系統編號)不得空白或不存在系統內");
+                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("错误");
+                            errorSheet.Cells[errorSheetRowIndex, 2].PutValue("验证字段(教师系统编号)不得空白或不存在系统内");
                         }
                         else
                         {
                             errorCount++;
                             errorSheet.Cells[errorSheetRowIndex, 0].PutValue(i + 1);
-                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("錯誤");
-                            errorSheet.Cells[errorSheetRowIndex, 2].PutValue("驗證欄位(教師系統編號)不存在系統內");
+                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("错误");
+                            errorSheet.Cells[errorSheetRowIndex, 2].PutValue("验证字段(教师系统编号)不存在系统内");
                         }
 
                         errorSheet.Cells[errorSheetRowIndex, 0].Style = errorStyle;
@@ -625,9 +625,9 @@ namespace ischoolAccountManagement.Teacher
                 }
                 #endregion
             }
-            else if (importFields.ContainsKey("教師姓名"))
+            else if (importFields.ContainsKey("教师姓名"))
             {
-                // 建立教師姓名+暱稱狀態所引
+                // 建立教师姓名+昵称状态所引
                 Dictionary<string, TeacherRecord> StudNumberStatusDict = new Dictionary<string, TeacherRecord>();
                 List<string> chkWstSnumList = new List<string>();
                 foreach (TeacherRecord rec in AllTeacherRecList)
@@ -639,17 +639,17 @@ namespace ischoolAccountManagement.Teacher
 
                 for (int i = 1; i <= wb.Worksheets[0].Cells.MaxDataRow; i++)
                 {
-                    string wtNum = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue) + GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["暱稱"]].StringValue);
-                    string num = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue)+GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["暱稱"]].StringValue)+"一般";
+                    string wtNum = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教师姓名"]].StringValue) + GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["昵称"]].StringValue);
+                    string num = GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教师姓名"]].StringValue) + GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["昵称"]].StringValue) + "一般";
                     if (num != "")
                     {
                         string rowError = "";
-                        #region 驗明正身
+                        #region 验明正身
                         if (!chkWstSnumList.Contains(num))
                             chkWstSnumList.Add(num);
                         else
                         {
-                            rowError = "工作表內 教師姓名+暱稱：" + wtNum + " 資料重複";
+                            rowError = "工作表内 教师姓名+昵称：" + wtNum + " 数据重复";
 
                         }
                         TeacherRecord stu = null;
@@ -658,9 +658,9 @@ namespace ischoolAccountManagement.Teacher
                             TeacherRecord var = StudNumberStatusDict[num];
                             bool pass = true;
 
-                            if (importFields.ContainsKey("教師姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教師姓名"]].StringValue) != var.Name)
+                            if (importFields.ContainsKey("教师姓名") && GetTrimText("" + wb.Worksheets[0].Cells[i, importFields["教师姓名"]].StringValue) != var.Name)
                             {
-                                rowError += (rowError == "" ? "" : "、\n") + "系統內教師姓名為\"" + var.Name + "\"";
+                                rowError += (rowError == "" ? "" : "、\n") + "系统内教师姓名为\"" + var.Name + "\"";
                                 pass = false;
                             }
                             if (pass)
@@ -670,15 +670,15 @@ namespace ischoolAccountManagement.Teacher
                         }
                         else
                         {
-                            // 當作新增，給後面程式處理
+                            // 当作新增，给后面程序处理
                             if (stu == null)
                             {
-                                // 檢查一般狀態是否存在，不存在新增一筆
+                                // 检查一般状态是否存在，不存在新增一笔
                                 if (StudNumberStatusDict.ContainsKey(wtNum + "一般"))
                                 {
-                                    rowError = "教師姓名+暱稱" + wtNum + " 已經有教師使用，無法新增。";
+                                    rowError = "教师姓名+昵称" + wtNum + " 已经有教师使用，无法新增。";
                                 }
-                        
+
                             }
                         }
 
@@ -705,7 +705,7 @@ namespace ischoolAccountManagement.Teacher
                         {
                             errorCount++;
                             errorSheet.Cells[errorSheetRowIndex, 0].PutValue(i + 1);
-                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("錯誤");
+                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("错误");
                             errorSheet.Cells[errorSheetRowIndex, 2].PutValue(rowError);
                             errorSheet.Cells[errorSheetRowIndex, 0].Style = errorStyle;
                             errorSheet.Cells[errorSheetRowIndex, 1].Style = errorStyle2;
@@ -729,8 +729,8 @@ namespace ischoolAccountManagement.Teacher
                         {
                             errorCount++;
                             errorSheet.Cells[errorSheetRowIndex, 0].PutValue(i + 1);
-                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("錯誤");
-                            errorSheet.Cells[errorSheetRowIndex, 2].PutValue("驗證欄位(教師姓名+暱稱)不得空白");
+                            errorSheet.Cells[errorSheetRowIndex, 1].PutValue("错误");
+                            errorSheet.Cells[errorSheetRowIndex, 2].PutValue("验证字段(教师姓名+昵称)不得空白");
                             errorSheet.Cells[errorSheetRowIndex, 0].Style = errorStyle;
                             errorSheet.Cells[errorSheetRowIndex, 1].Style = errorStyle2;
                             errorSheet.Cells[errorSheetRowIndex, 2].Style = errorStyle2;
@@ -755,7 +755,7 @@ namespace ischoolAccountManagement.Teacher
             }
 
 
-            #region 驗證資料
+            #region 验证数据
             List<string> list = new List<string>();
             foreach (RowData row in rowDataIndex.Keys)
             {
@@ -773,7 +773,7 @@ namespace ischoolAccountManagement.Teacher
             double count = 0.0;
             foreach (RowData row in rowDataIndex.Keys)
             {
-                #region 驗證
+                #region 验证
                 string rowError = "";
                 Dictionary<string, string> errorFields, warningFields;
                 //RowDataValidatedEventArgs args = _Process.ValidateRow(row, selectedFields);
@@ -806,7 +806,7 @@ namespace ischoolAccountManagement.Teacher
                             message += (message == "" ? "" : "\n") + "  " + key + "：" + errorFields[key];
                         }
                         errorSheet.Cells[errorSheetRowIndex, 0].PutValue(rowDataIndex[row] + 1);
-                        errorSheet.Cells[errorSheetRowIndex, 1].PutValue(hasError ? "錯誤" : "警告");
+                        errorSheet.Cells[errorSheetRowIndex, 1].PutValue(hasError ? "错误" : "警告");
                         errorSheet.Cells[errorSheetRowIndex, 2].PutValue(message);
                         errorSheet.Cells[errorSheetRowIndex, 0].Style = errorStyle;
                         errorSheet.Cells[errorSheetRowIndex, 1].Style = errorStyle2;
@@ -894,9 +894,9 @@ namespace ischoolAccountManagement.Teacher
                 this.Tag = ((object[])e.Result)[2];
                 wizard1.Tag = ((object[])e.Result)[3];
                 if (wizardPage3.FinishButtonEnabled == eWizardButtonState.True)
-                    labelX2.Text = "資料驗證完成";
+                    labelX2.Text = "数据验证完成";
                 else
-                    labelX2.Text = "資料驗證失敗";
+                    labelX2.Text = "数据验证失败";
             }
             else
             {
@@ -905,7 +905,7 @@ namespace ischoolAccountManagement.Teacher
                     linkLabel1.Visible = true;
                     linkLabel1.Tag = _ErrorWB;
                     wizardPage3.FinishButtonEnabled = eWizardButtonState.False;
-                    labelX2.Text = "資料驗證失敗";
+                    labelX2.Text = "数据验证失败";
                 }
             }
         }
@@ -914,7 +914,7 @@ namespace ischoolAccountManagement.Teacher
         {
             Workbook wb = new Workbook();
             wb.Copy((Workbook)((Control)sender).Tag);
-            Completed(_Title + "_驗證", wb);
+            Completed(_Title + "_验证", wb);
         }
 
         private void Completed(string inputReportName, Workbook inputDoc)
@@ -952,7 +952,7 @@ namespace ischoolAccountManagement.Teacher
                 SaveFileDialog sd = new SaveFileDialog();
                 sd.Title = "另存新檔";
                 sd.FileName = reportName + ".xls";
-                sd.Filter = "Excel檔案 (*.xls)|*.xls|所有檔案 (*.*)|*.*";
+                sd.Filter = "Excel档案 (*.xls)|*.xls|所有档案 (*.*)|*.*";
                 if (sd.ShowDialog() == DialogResult.OK)
                 {
                     try
@@ -961,7 +961,7 @@ namespace ischoolAccountManagement.Teacher
                     }
                     catch
                     {
-                        MsgBox.Show("指定路徑無法存取。", "建立檔案失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MsgBox.Show("指定路径无法存取。", "建立档案失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
@@ -971,7 +971,7 @@ namespace ischoolAccountManagement.Teacher
         private void wizardPage3_FinishButtonClick(object sender, CancelEventArgs e)
         {
             Dictionary<string, List<RowData>> ID_Rows = new Dictionary<string, List<RowData>>();
-            #region 將資料依ID群組
+            #region 将资料依ID群组
             List<RowData> rows = (List<RowData>)this.Tag;
             foreach (RowData row in rows)
             {
@@ -981,7 +981,7 @@ namespace ischoolAccountManagement.Teacher
             }
             #endregion
             List<List<RowData>> packages = new List<List<RowData>>();
-            #region 將資料分割成數個Package
+            #region 将数据分割成数个Package
             {
                 List<RowData> package = null;
                 int packageCount = 0;
@@ -1056,7 +1056,7 @@ namespace ischoolAccountManagement.Teacher
             txtFile_TextChanged(null, null);
         }
 
-        #region ImportWizard 成員
+        #region ImportWizard 成员
 
         public void AddError(SmartSchool.API.PlugIn.RowData rowData, string message)
         {
@@ -1164,3 +1164,4 @@ namespace ischoolAccountManagement.Teacher
         }
     }
 }
+

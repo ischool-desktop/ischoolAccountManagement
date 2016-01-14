@@ -14,7 +14,7 @@ namespace ischoolAccountManagement
 
         public static string ConvertStringToBase64String(string str)
         {
-            string value = "";            
+            string value = "";
             byte[] b = System.Text.Encoding.GetEncoding("utf-8").GetBytes(str);
             value = Convert.ToBase64String(b);
             return value;
@@ -25,7 +25,7 @@ namespace ischoolAccountManagement
             string value = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(str));
             return value;
         }
-        
+
         public static UDT_AdminData GetAdminData(string type)
         {
             UDT_AdminData value = null;
@@ -39,14 +39,14 @@ namespace ischoolAccountManagement
         }
 
         /// <summary>
-        /// 檢查帳號是否可以登入
+        /// 检查账号是否可以登入
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
         public static bool CheckAdminPWD(string type)
         {
             bool pass = true;
-            // 取得主機帳號密碼
+            // 取得主机账号密码
             UDT_AdminData admin = GetAdminData(type);
 
             string dsns = FISCA.Authentication.DSAServices.AccessPoint;
@@ -58,11 +58,11 @@ namespace ischoolAccountManagement
             req.ContentType = "application/json";
             StringBuilder sendSB = new StringBuilder();
             sendSB.Append("{");
-            string titleStr = "'application':'" + dsns + "','domain':{'name':'" + admin.Domain + "','acc':'" + admin.Account + "','pwd':'" +Utility.ConvertBase64StringToString(admin.Password) + "'}";
+            string titleStr = "'application':'" + dsns + "','domain':{'name':'" + admin.Domain + "','acc':'" + admin.Account + "','pwd':'" + Utility.ConvertBase64StringToString(admin.Password) + "'}";
             // 取代'""
             string cc = "\"";
             titleStr = titleStr.Replace("'", cc);
-            sendSB.Append(titleStr);            
+            sendSB.Append(titleStr);
             sendSB.Append("}");
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
             byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
@@ -86,10 +86,11 @@ namespace ischoolAccountManagement
             if (!responseFromServer.Contains("success"))
             {
                 pass = false;
-                FISCA.Presentation.Controls.MsgBox.Show("網域帳號登入失敗," + responseFromServer);
+                FISCA.Presentation.Controls.MsgBox.Show("网域账号登入失败," + responseFromServer);
             }
-            // 登入測試
+            // 登入测试
             return pass;
         }
     }
 }
+

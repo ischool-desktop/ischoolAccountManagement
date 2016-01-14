@@ -16,19 +16,19 @@ namespace ischoolAccountManagement
         static public void Main()
         {
 
-            Catalog StudentCatalog1 = RoleAclSource.Instance["學生"]["功能按鈕"];
-            StudentCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Student.ExportStudentData", "匯出學生帳號"));
-            StudentCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Student.ImportStudentData", "匯入學生帳號"));
+            Catalog StudentCatalog1 = RoleAclSource.Instance["学生"]["功能按钮"];
+            StudentCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Student.ExportStudentData", "汇出学生账号"));
+            StudentCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Student.ImportStudentData", "汇入学生账号"));
 
-            Catalog TeacherCatalog1 = RoleAclSource.Instance["教師"]["功能按鈕"];
-            TeacherCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Teacher.ExportTeacherData", "匯出教師帳號"));
-            TeacherCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Teacher.ImportTeacherData", "匯入教師帳號"));
+            Catalog TeacherCatalog1 = RoleAclSource.Instance["教师"]["功能按钮"];
+            TeacherCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Teacher.ExportTeacherData", "汇出教师账号"));
+            TeacherCatalog1.Add(new RibbonFeature("ischoolAccountManagement.Teacher.ImportTeacherData", "汇入教师账号"));
 
 
 
-            RibbonBarButton rbItemExport = K12.Presentation.NLDPanels.Student.RibbonBarItems["資料統計"]["匯出"];
-            rbItemExport["匯出學生帳號"].Enable = UserAcl.Current["ischoolAccountManagement.Student.ExportStudentData"].Executable;
-            rbItemExport["匯出學生帳號"].Click += delegate
+            RibbonBarButton rbItemExport = K12.Presentation.NLDPanels.Student.RibbonBarItems["资料统计"]["汇出"];
+            rbItemExport["汇出学生账号"].Enable = UserAcl.Current["ischoolAccountManagement.Student.ExportStudentData"].Executable;
+            rbItemExport["汇出学生账号"].Click += delegate
             {
                 SmartSchool.API.PlugIn.Export.Exporter exporter = new ExportStudentAccount();
                 ExportStudentV2 wizard = new ExportStudentV2(exporter.Text, exporter.Image);
@@ -36,9 +36,9 @@ namespace ischoolAccountManagement
                 wizard.ShowDialog();
             };
 
-            rbItemExport = K12.Presentation.NLDPanels.Teacher.RibbonBarItems["資料統計"]["匯出"];
-            rbItemExport["匯出教師帳號"].Enable = UserAcl.Current["ischoolAccountManagement.Teacher.ExportTeacherData"].Executable;
-            rbItemExport["匯出教師帳號"].Click += delegate
+            rbItemExport = K12.Presentation.NLDPanels.Teacher.RibbonBarItems["资料统计"]["汇出"];
+            rbItemExport["汇出教师账号"].Enable = UserAcl.Current["ischoolAccountManagement.Teacher.ExportTeacherData"].Executable;
+            rbItemExport["汇出教师账号"].Click += delegate
             {
                 SmartSchool.API.PlugIn.Export.Exporter exporter = new ExportTeacherAccount();
                 ExportTeacherV2 wizard = new ExportTeacherV2(exporter.Text, exporter.Image);
@@ -46,9 +46,9 @@ namespace ischoolAccountManagement
                 wizard.ShowDialog();
             };
 
-            RibbonBarButton rbItemImport = K12.Presentation.NLDPanels.Student.RibbonBarItems["資料統計"]["匯入"];
-            rbItemImport["匯入學生帳號"].Enable = UserAcl.Current["ischoolAccountManagement.Student.ImportStudentData"].Executable;
-            rbItemImport["匯入學生帳號"].Click += delegate
+            RibbonBarButton rbItemImport = K12.Presentation.NLDPanels.Student.RibbonBarItems["资料统计"]["汇入"];
+            rbItemImport["汇入学生账号"].Enable = UserAcl.Current["ischoolAccountManagement.Student.ImportStudentData"].Executable;
+            rbItemImport["汇入学生账号"].Click += delegate
             {
                 SmartSchool.API.PlugIn.Import.Importer importer = new ImportStudentData();
                 ImportStudentV2 wizard = new ImportStudentV2(importer.Text, importer.Image);
@@ -56,9 +56,9 @@ namespace ischoolAccountManagement
                 wizard.ShowDialog();
             };
 
-            rbItemImport = K12.Presentation.NLDPanels.Teacher.RibbonBarItems["資料統計"]["匯入"];
-            rbItemImport["匯入教師帳號"].Enable = UserAcl.Current["ischoolAccountManagement.Teacher.ImportTeacherData"].Executable;
-            rbItemImport["匯入教師帳號"].Click += delegate
+            rbItemImport = K12.Presentation.NLDPanels.Teacher.RibbonBarItems["资料统计"]["汇入"];
+            rbItemImport["汇入教师账号"].Enable = UserAcl.Current["ischoolAccountManagement.Teacher.ImportTeacherData"].Executable;
+            rbItemImport["汇入教师账号"].Click += delegate
             {
                 SmartSchool.API.PlugIn.Import.Importer importer = new ImportTeacherData();
                 ImportTeacherV2 wizard = new ImportTeacherV2(importer.Text, importer.Image);
@@ -68,3 +68,4 @@ namespace ischoolAccountManagement
         }
     }
 }
+

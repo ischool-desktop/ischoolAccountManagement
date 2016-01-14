@@ -17,7 +17,7 @@ using FISCA.Presentation.Controls;
 
 namespace ischoolAccountManagement.Student
 {
-    public partial class ExportStudentV2 :BaseForm,SmartSchool.API.PlugIn.Export.ExportWizard
+    public partial class ExportStudentV2 : BaseForm, SmartSchool.API.PlugIn.Export.ExportWizard
     {
         private string _Title;
         private IntelliSchool.DSA.ClientFramework.ControlCommunication.ListViewCheckAllManager _CheckAllManager = new IntelliSchool.DSA.ClientFramework.ControlCommunication.ListViewCheckAllManager();
@@ -46,7 +46,7 @@ namespace ischoolAccountManagement.Student
                 }
             }
 
-            #region 加入進階跟HELP按鈕
+            #region 加入进阶跟HELP按钮
             _OptionsContainer = new PanelEx();
             _OptionsContainer.Font = this.Font;
             _OptionsContainer.ColorSchemeStyle = eDotNetBarStyle.Office2007;
@@ -73,7 +73,7 @@ namespace ischoolAccountManagement.Student
 
             advButton = new ButtonX();
             advButton.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
-            advButton.Text = "    進階";
+            advButton.Text = "    进阶";
             advButton.Top = this.wizard1.Controls[1].Controls[0].Top;
             advButton.Left = 5;
             advButton.Size = this.wizard1.Controls[1].Controls[0].Size;
@@ -104,7 +104,7 @@ namespace ischoolAccountManagement.Student
             this.wizard1.Controls[1].Controls.Add(helpButton);
             #endregion
 
-            #region 設定Wizard會跟著Style跑
+            #region 设定Wizard会跟着Style跑
             //this.wizard1.FooterStyle.ApplyStyle(( GlobalManager.Renderer as Office2007Renderer ).ColorTable.GetClass(ElementStyleClassKeys.RibbonFileMenuBottomContainerKey));
             this.wizard1.HeaderStyle.ApplyStyle((GlobalManager.Renderer as Office2007Renderer).ColorTable.GetClass(ElementStyleClassKeys.RibbonFileMenuBottomContainerKey));
             this.wizard1.FooterStyle.BackColorGradientAngle = -90;
@@ -143,7 +143,7 @@ namespace ischoolAccountManagement.Student
                 }
                 listViewEx1.Items.Clear();
 
-                List<string> newFields = new List<string>(new string[] { "學生系統編號", "學號", "班級", "座號", "姓名" });
+                List<string> newFields = new List<string>(new string[] { "学生系统编号", "学号", "班级", "座号", "姓名" });
                 //newFields.AddRange(_Process.ExportableFields);
                 foreach (string field in _ExportableFields)
                 {
@@ -203,7 +203,7 @@ namespace ischoolAccountManagement.Student
                         item.TextChanged += new EventHandler(syncCheckBox);
                         item.EnabledChanged += new EventHandler(syncCheckBox);
                         checkbox.Location = new Point(9, Y);
-                        _OptionsContainer.Controls.Add(checkbox);//要先加入Panel後抓Size才準
+                        _OptionsContainer.Controls.Add(checkbox);//要先加入Panel后抓Size才准
                         Y += checkbox.Height + speace;
                         if (checkbox.PreferredSize.Width + 25 > width)
                             width = checkbox.PreferredSize.Width + 25;
@@ -315,7 +315,7 @@ namespace ischoolAccountManagement.Student
             this.Close();
         }
 
-        #region ExportWizard 成員
+        #region ExportWizard 成员
 
         //public Control ControlPanel
         //{
@@ -387,11 +387,11 @@ namespace ischoolAccountManagement.Student
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.Title = "另存新檔";
             saveFileDialog1.FileName = "" + _Title + ".xls";
-            saveFileDialog1.Filter = "Excel (*.xls)|*.xls|所有檔案 (*.*)|*.*";
+            saveFileDialog1.Filter = "Excel (*.xls)|*.xls|所有档案 (*.*)|*.*";
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 List<string> idlist = new List<string>();
-                #region 取得選取學生編號
+                #region 取得选取学生编号
                 List<StudentRecord> selectedStudents = K12.Data.Student.SelectByIDs(K12.Presentation.NLDPanels.Student.SelectedSource);
                 foreach (StudentRecord stu in selectedStudents)
                 {
@@ -404,7 +404,7 @@ namespace ischoolAccountManagement.Student
 
                 List<string> studentFieldList = new List<string>();
                 List<string> exportFieldList = new List<string>(_SelectedFields);
-                #region 取得選取欄位
+                #region 取得选取字段
                 for (int index = 0; index < 5; index++)
                 {
                     if (listViewEx1.Items[index] != null && listViewEx1.Items[index].Checked)
@@ -415,8 +415,8 @@ namespace ischoolAccountManagement.Student
                 #endregion
 
                 List<List<string>> splitList = new List<List<string>>();
-                //把全部學生以_PackageLimint人分一包
-                #region 把全部學生以_PackageLimint人分一包
+                //把全部学生以_PackageLimint人分一包
+                #region 把全部学生以_PackageLimint人分一包
                 int count = 0;
                 List<string> package = new List<string>();
                 foreach (string id in idlist)
@@ -432,10 +432,10 @@ namespace ischoolAccountManagement.Student
                     count--;
                 }
                 #endregion
-                //兩條獨立讀取
+                //两条独立读取
                 Dictionary<List<string>, ManualResetEvent> Loader1 = new Dictionary<List<string>, ManualResetEvent>();
                 Dictionary<List<string>, ManualResetEvent> Loader2 = new Dictionary<List<string>, ManualResetEvent>();
-                //已讀取資料
+                //已读取数据
                 Dictionary<ManualResetEvent, List<RowData>> Filler = new Dictionary<ManualResetEvent, List<RowData>>();
                 int i = 0;
                 foreach (List<string> p in splitList)
@@ -449,14 +449,14 @@ namespace ischoolAccountManagement.Student
                     i++;
                 }
 
-                //在背景執行取得資料
+                //在背景执行取得资料
                 BackgroundWorker bkwDataLoader = new BackgroundWorker();
                 bkwDataLoader.DoWork += new DoWorkEventHandler(bkwDataLoader_DoWork);
                 bkwDataLoader.RunWorkerAsync(new object[] { Loader1, Filler, exportFieldList });
                 bkwDataLoader = new BackgroundWorker();
                 bkwDataLoader.DoWork += new DoWorkEventHandler(bkwDataLoader_DoWork);
                 bkwDataLoader.RunWorkerAsync(new object[] { Loader2, Filler, exportFieldList });
-                //在背景計算不及格名單
+                //在背景计算不及格名单
                 BackgroundWorker bkwNotPassComputer = new BackgroundWorker();
                 bkwNotPassComputer.WorkerReportsProgress = true;
                 bkwNotPassComputer.DoWork += new DoWorkEventHandler(bkwNotPassComputer_DoWork);
@@ -467,16 +467,16 @@ namespace ischoolAccountManagement.Student
             }
         }
 
-        StringBuilder SB; //給Log使用
-        List<string> StudIDList = new List<string>(); //給Log使用
-        string eveCount; //給Log使用
+        StringBuilder SB; //给Log使用
+        List<string> StudIDList = new List<string>(); //给Log使用
+        string eveCount; //给Log使用
 
 
         void bkwNotPassComputer_DoWork(object sender, DoWorkEventArgs e)
         {
-            SB = new StringBuilder(); //給Log使用
-            SB.AppendLine("詳細資料："); //給Log使用
-            StudIDList.Clear(); //給Log使用
+            SB = new StringBuilder(); //给Log使用
+            SB.AppendLine("详细资料："); //给Log使用
+            StudIDList.Clear(); //给Log使用
 
             string fileName = (string)((object[])e.Argument)[0];
             List<string> studentFieldList = (List<string>)((object[])e.Argument)[1];
@@ -486,10 +486,10 @@ namespace ischoolAccountManagement.Student
             double packageProgress = 100.0 / Filler.Count;
             Workbook report = new Workbook();
             report.Worksheets[0].Name = _Title;
-            ((BackgroundWorker)sender).ReportProgress(1, _Title + " 資料整理中...");
+            ((BackgroundWorker)sender).ReportProgress(1, _Title + " 资料整理中...");
             int RowIndex = 0;
             int i = 0;
-            //填表頭
+            //填表头
             for (; i < studentFieldList.Count; i++)
             {
                 report.Worksheets[0].Cells[0, i].PutValue(studentFieldList[i]);
@@ -502,7 +502,7 @@ namespace ischoolAccountManagement.Student
             foreach (ManualResetEvent eve in Filler.Keys)
             {
                 eve.WaitOne();
-                eveCount = Filler[eve].Count.ToString(); //給Log使用
+                eveCount = Filler[eve].Count.ToString(); //给Log使用
 
                 if (Filler[eve].Count != 0)
                 {
@@ -518,7 +518,7 @@ namespace ischoolAccountManagement.Student
                         K12.Data.StudentRecord student = null;
                         if (row.ID != "")
                         {
-                            if (!StudIDList.Contains(row.ID)) //給Log使用
+                            if (!StudIDList.Contains(row.ID)) //给Log使用
                             {
                                 StudIDList.Add(row.ID);
                             }
@@ -535,10 +535,10 @@ namespace ischoolAccountManagement.Student
                                 {
                                     switch (studentFieldList[i])
                                     {
-                                        case "學生系統編號": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.ID); break;
-                                        case "學號": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.StudentNumber); break;
-                                        case "班級": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.Class == null ? "" : student.Class.Name); break;
-                                        case "座號": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.SeatNo); break;
+                                        case "学生系统编号": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.ID); break;
+                                        case "学号": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.StudentNumber); break;
+                                        case "班级": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.Class == null ? "" : student.Class.Name); break;
+                                        case "座号": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.SeatNo); break;
                                         case "姓名": report.Worksheets[0].Cells[RowIndex, i].PutValue(student.Name); break;
                                         default:
                                             break;
@@ -552,11 +552,11 @@ namespace ischoolAccountManagement.Student
                             RowIndex++;
                         }
                         miniTotle += miniProgress;
-                        ((BackgroundWorker)sender).ReportProgress((int)(totleProgress + miniTotle), _Title + " 處理中...");
+                        ((BackgroundWorker)sender).ReportProgress((int)(totleProgress + miniTotle), _Title + " 处理中...");
                     }
                 }
                 totleProgress += packageProgress;
-                ((BackgroundWorker)sender).ReportProgress((int)(totleProgress), _Title + " 處理中...");
+                ((BackgroundWorker)sender).ReportProgress((int)(totleProgress), _Title + " 处理中...");
 
 
 
@@ -577,13 +577,13 @@ namespace ischoolAccountManagement.Student
 
         void bkwNotPassComputer_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            FISCA.Presentation.MotherForm.SetStatusBarMessage(_Title + " 檔案儲存中。", 100);
+            FISCA.Presentation.MotherForm.SetStatusBarMessage(_Title + " 档案储存中。", 100);
             if (e.Error == null)
             {
                 Workbook report = (Workbook)((object[])e.Result)[0];
                 bool overLimit = (bool)((object[])e.Result)[2];
-                //儲存 Excel
-                #region 儲存 Excel
+                //储存 Excel
+                #region 储存 Excel
                 string path = (string)((object[])e.Result)[1];
 
                 if (File.Exists(path))
@@ -625,7 +625,7 @@ namespace ischoolAccountManagement.Student
                     SaveFileDialog sd = new SaveFileDialog();
                     sd.Title = "另存新檔";
                     sd.FileName = Path.GetFileNameWithoutExtension(path) + ".xls";
-                    sd.Filter = "Excel檔案 (*.xls)|*.xls|所有檔案 (*.*)|*.*";
+                    sd.Filter = "Excel档案 (*.xls)|*.xls|所有档案 (*.*)|*.*";
                     if (sd.ShowDialog() == DialogResult.OK)
                     {
                         try
@@ -635,7 +635,7 @@ namespace ischoolAccountManagement.Student
                         }
                         catch
                         {
-                            MsgBox.Show("指定路徑無法存取。", "建立檔案失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MsgBox.Show("指定路径无法存取。", "建立档案失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                     }
@@ -651,22 +651,22 @@ namespace ischoolAccountManagement.Student
                 {
                     if (each.Class != null)
                     {
-                        SB.AppendLine("姓名「" + each.Name + "」班級「" + each.Class.Name + "」座號「" + each.SeatNo + "」學號「" + each.StudentNumber + "」。");
+                        SB.AppendLine("姓名「" + each.Name + "」班级「" + each.Class.Name + "」座号「" + each.SeatNo + "」学号「" + each.StudentNumber + "」。");
                     }
                     else
                     {
-                        SB.AppendLine("姓名「" + each.Name + "」學號「" + each.StudentNumber + "」。");
+                        SB.AppendLine("姓名「" + each.Name + "」学号「" + each.StudentNumber + "」。");
                     }
                 }
-                ApplicationLog.Log("學務系統.匯出", _Title, "已進行「" + _Title + "」操作。\n" + SB.ToString());
+                ApplicationLog.Log("学务系统.汇出", _Title, "已进行「" + _Title + "」操作。\n" + SB.ToString());
                 #endregion
 
                 if (overLimit)
-                    MsgBox.Show("匯出資料已經超過Excel的極限(65536筆)。\n超出的資料無法被匯出。\n\n請減少選取學生人數。");
+                    MsgBox.Show("汇出资料已经超过Excel的极限(65536笔)。\n超出的数据无法被汇出。\n\n请减少选取学生人数。");
                 System.Diagnostics.Process.Start(path);
             }
             else
-                FISCA.Presentation.MotherForm.SetStatusBarMessage(_Title + "發生未預期錯誤。");
+                FISCA.Presentation.MotherForm.SetStatusBarMessage(_Title + "发生未预期错误。");
         }
 
         void bkwDataLoader_DoWork(object sender, DoWorkEventArgs e)
@@ -696,7 +696,7 @@ namespace ischoolAccountManagement.Student
                 }
                 catch (Exception ex)
                 {
-//                    BugReporter.ReportException(ex, false);
+                    //                    BugReporter.ReportException(ex, false);
                 }
                 finally
                 {
@@ -706,3 +706,4 @@ namespace ischoolAccountManagement.Student
         }
     }
 }
+
