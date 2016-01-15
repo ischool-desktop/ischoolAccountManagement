@@ -287,7 +287,7 @@ namespace ischoolAccountManagement
 
                         // 检查Account 是否有带@，没有自动加入。
                         if (!uAcc.Account.Contains("@") && dName != "")
-                            uAcc.Account += uAcc.Account + "@" + dName;
+                            uAcc.Account = uAcc.Account + "@" + dName;
 
                     }
 
