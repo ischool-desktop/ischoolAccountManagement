@@ -275,70 +275,77 @@ namespace ischoolAccountManagement
 
             if (chkSend)
             {
-                StringBuilder sendSB = new StringBuilder();
-
-                foreach (RowData Row in e.Items)
+                try
                 {
-                    Service.UserAccount uAcc = new Service.UserAccount();
-                    if (Row.ContainsKey("登入帳號"))
+                    StringBuilder sendSB = new StringBuilder();
+
+                    foreach (RowData Row in e.Items)
                     {
-                        uAcc.Account = Row["登入帳號"].ToString();
+                        Service.UserAccount uAcc = new Service.UserAccount();
+                        if (Row.ContainsKey("登入帳號"))
+                        {
+                            uAcc.Account = Row["登入帳號"].ToString();
 
-                        // 檢查Account 是否有帶@，沒有自動加入。
-                        if (!uAcc.Account.Contains("@") && dName !="")
-                            uAcc.Account = uAcc.Account + "@" + dName;
+                            // 檢查Account 是否有帶@，沒有自動加入。
+                            if (!uAcc.Account.Contains("@") && dName != "")
+                                uAcc.Account = uAcc.Account + "@" + dName;
 
+                        }
+
+                        if (Row.ContainsKey("密碼"))
+                            uAcc.Password = Row["密碼"].ToString();
+
+                        if (Row.ContainsKey("姓"))
+                            uAcc.LastName = Row["姓"].ToString();
+
+                        if (Row.ContainsKey("名"))
+                            uAcc.FirstName = Row["名"].ToString();
+
+                        UserAccountList.Add(uAcc);
                     }
+                    string dsns = FISCA.Authentication.DSAServices.AccessPoint;
 
-                    if (Row.ContainsKey("密碼"))
-                        uAcc.Password = Row["密碼"].ToString();
+                    string url = Config.TaiwanUrl;
+                    HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                    req.Method = "POST";
+                    req.Accept = "*/*";
+                    req.ContentType = "application/json";
 
-                    if (Row.ContainsKey("姓"))
-                        uAcc.LastName = Row["姓"].ToString();
+                    sendSB.Append("{");
+                    string titleStr = "'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'},'list':";
+                    // 取代'""
+                    string cc = "\"";
+                    titleStr = titleStr.Replace("'", cc);
+                    sendSB.Append(titleStr);
+                    sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
+                    sendSB.Append("}");
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
-                    if (Row.ContainsKey("名"))
-                        uAcc.FirstName = Row["名"].ToString();
+                    byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
+                    req.ContentLength = byteArray.Length;
+                    Stream dataStream = req.GetRequestStream();
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                    dataStream.Close();
 
-                    UserAccountList.Add(uAcc);
-                }
-                string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-                                
-                string url = Config.TaiwanUrl;
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                req.Method = "POST";
-                req.Accept = "*/*";
-                req.ContentType = "application/json";
+                    HttpWebResponse rsp;
+                    rsp = (HttpWebResponse)req.GetResponse();
+                    //= req.GetResponse();
+                    dataStream = rsp.GetResponseStream();
 
-                sendSB.Append("{");
-                string titleStr = "'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'},'list':";
-                // 取代'""
-                string cc = "\"";
-                titleStr = titleStr.Replace("'", cc);
-                sendSB.Append(titleStr);
-                sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
-                sendSB.Append("}");
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                    // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
+                    StreamReader reader = new StreamReader(dataStream);
+                    // Read the content.
+                    string responseFromServer = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                    rsp.Close();
+                    if (!responseFromServer.Contains("success"))
+                        FISCA.Presentation.Controls.MsgBox.Show("上傳網域帳號失敗," + responseFromServer);
 
-                byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
-                req.ContentLength = byteArray.Length;
-                Stream dataStream = req.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                HttpWebResponse rsp;
-                rsp = (HttpWebResponse)req.GetResponse();
-                //= req.GetResponse();
-                dataStream = rsp.GetResponseStream();
-
-                // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
-                StreamReader reader = new StreamReader(dataStream);
-                // Read the content.
-                string responseFromServer = reader.ReadToEnd();
-                reader.Close();
-                dataStream.Close();
-                rsp.Close();
-                if (!responseFromServer.Contains("success"))
-                    FISCA.Presentation.Controls.MsgBox.Show("上傳網域帳號失敗," + responseFromServer);
+                }catch(Exception ex)
+                {
+                    FISCA.Presentation.Controls.MsgBox.Show("網域帳號登入失敗," + ex.Message);
+                }                
             }
             #endregion    
         }
