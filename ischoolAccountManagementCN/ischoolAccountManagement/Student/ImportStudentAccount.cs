@@ -296,79 +296,86 @@ namespace ischoolAccountManagement
 
             if (chkSend)
             {
-                StringBuilder sendSB = new StringBuilder();
-
-                foreach (RowData Row in e.Items)
-                {
-                    Service.UserAccount uAcc = new Service.UserAccount();
-                    if (Row.ContainsKey("登入账号"))
-                    {
-                        uAcc.Account = Row["登入账号"].ToString();
-
-                        // 检查Account 是否有带@，没有自动加入。
-                        if (!uAcc.Account.Contains("@") && dName != "")
-                            uAcc.Account = uAcc.Account + "@" + dName;
-
-                    }
-
-                    if (Row.ContainsKey("密码"))
-                        uAcc.Password = Row["密码"].ToString();
-
-                    if (Row.ContainsKey("姓"))
-                        uAcc.LastName = Row["姓"].ToString();
-
-                    if (Row.ContainsKey("名"))
-                        uAcc.FirstName = Row["名"].ToString();
-
-                    UserAccountList.Add(uAcc);
-                }
-                string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-
-                string url = Config.ChinaUrl;
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                req.Method = "POST";
-                req.Accept = "*/*";
-                req.ContentType = "application/json";
-                //req.Referer = url;
-                //req.Host = "auth.ischoolcenter.com";              
-                //req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36";                
-                sendSB.Append("{");
-                string titleStr = "'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'},'list':";
-                // 取代'""
-                string cc = "\"";
-                titleStr = titleStr.Replace("'", cc);
-                sendSB.Append(titleStr);
-                sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
-                sendSB.Append("}");
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-                byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
-                req.ContentLength = byteArray.Length;
-                Stream dataStream = req.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
                 try
                 {
-                    HttpWebResponse rsp;
-                    rsp = (HttpWebResponse)req.GetResponse();
-                    //= req.GetResponse();
-                    dataStream = rsp.GetResponseStream();
+                    StringBuilder sendSB = new StringBuilder();
 
+                    foreach (RowData Row in e.Items)
+                    {
+                        Service.UserAccount uAcc = new Service.UserAccount();
+                        if (Row.ContainsKey("登入账号"))
+                        {
+                            uAcc.Account = Row["登入账号"].ToString();
 
-                    // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
-                    StreamReader reader = new StreamReader(dataStream);
-                    // Read the content.
-                    string responseFromServer = reader.ReadToEnd();
-                    reader.Close();
+                            // 检查Account 是否有带@，没有自动加入。
+                            if (!uAcc.Account.Contains("@") && dName != "")
+                                uAcc.Account = uAcc.Account + "@" + dName;
+
+                        }
+
+                        if (Row.ContainsKey("密码"))
+                            uAcc.Password = Row["密码"].ToString();
+
+                        if (Row.ContainsKey("姓"))
+                            uAcc.LastName = Row["姓"].ToString();
+
+                        if (Row.ContainsKey("名"))
+                            uAcc.FirstName = Row["名"].ToString();
+
+                        UserAccountList.Add(uAcc);
+                    }
+                    string dsns = FISCA.Authentication.DSAServices.AccessPoint;
+
+                    string url = Config.ChinaUrl;
+                    HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                    req.Method = "POST";
+                    req.Accept = "*/*";
+                    req.ContentType = "application/json";
+                    //req.Referer = url;
+                    //req.Host = "auth.ischoolcenter.com";              
+                    //req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36";                
+                    sendSB.Append("{");
+                    string titleStr = "'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'},'list':";
+                    // 取代'""
+                    string cc = "\"";
+                    titleStr = titleStr.Replace("'", cc);
+                    sendSB.Append(titleStr);
+                    sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
+                    sendSB.Append("}");
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                    byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
+                    req.ContentLength = byteArray.Length;
+                    Stream dataStream = req.GetRequestStream();
+                    dataStream.Write(byteArray, 0, byteArray.Length);
                     dataStream.Close();
-                    rsp.Close();
-                    if (!responseFromServer.Contains("success"))
-                        FISCA.Presentation.Controls.MsgBox.Show("上传网域账号失败," + responseFromServer);
+                    try
+                    {
+                        HttpWebResponse rsp;
+                        rsp = (HttpWebResponse)req.GetResponse();
+                        //= req.GetResponse();
+                        dataStream = rsp.GetResponseStream();
 
-                }
-                catch (Exception ex)
-                {
 
+                        // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
+                        StreamReader reader = new StreamReader(dataStream);
+                        // Read the content.
+                        string responseFromServer = reader.ReadToEnd();
+                        reader.Close();
+                        dataStream.Close();
+                        rsp.Close();
+                        if (!responseFromServer.Contains("success"))
+                            FISCA.Presentation.Controls.MsgBox.Show("上传网域账号失败," + responseFromServer);
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                 }
+                catch (Exception ex) {
+                    FISCA.Presentation.Controls.MsgBox.Show("上传网域账号失败," + ex.Message);
+                }
+                
 
             }
             #endregion
