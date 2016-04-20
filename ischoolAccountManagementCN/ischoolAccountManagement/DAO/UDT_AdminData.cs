@@ -39,49 +39,56 @@ namespace ischoolAccountManagement.DAO
 
         public bool Check()
         {
-            var dName = Domain;
-            var dAccount = Account;
-            var dPwd = Utility.ConvertBase64StringToString(Password);
-            string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-
-            string url = Config.ChinaUrl;
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-            req.Method = "POST";
-            req.Accept = "*/*";
-            req.ContentType = "application/json";
-            string titleStr = "{'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'}}";
-            // 取代'""
-            string cc = "\"";
-            titleStr = titleStr.Replace("'", cc);
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-            byte[] byteArray = Encoding.UTF8.GetBytes(titleStr);
-            req.ContentLength = byteArray.Length;
-            Stream dataStream = req.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            HttpWebResponse rsp;
-            rsp = (HttpWebResponse)req.GetResponse();
-            //= req.GetResponse();
-            dataStream = rsp.GetResponseStream();
-
-
-            // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
-            StreamReader reader = new StreamReader(dataStream);
             try
             {
-                // Read the content.
-                string responseFromServer = reader.ReadToEnd();
-                reader.Close();
+                var dName = Domain;
+                var dAccount = Account;
+                var dPwd = Utility.ConvertBase64StringToString(Password);
+                string dsns = FISCA.Authentication.DSAServices.AccessPoint;
+
+                string url = Config.ChinaUrl;
+                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                req.Method = "POST";
+                req.Accept = "*/*";
+                req.ContentType = "application/json";
+                string titleStr = "{'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'}}";
+                // 取代'""
+                string cc = "\"";
+                titleStr = titleStr.Replace("'", cc);
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                byte[] byteArray = Encoding.UTF8.GetBytes(titleStr);
+                req.ContentLength = byteArray.Length;
+                Stream dataStream = req.GetRequestStream();
+                dataStream.Write(byteArray, 0, byteArray.Length);
                 dataStream.Close();
-                rsp.Close();
-                if (!responseFromServer.Contains("success"))
+                HttpWebResponse rsp;
+                rsp = (HttpWebResponse)req.GetResponse();
+                //= req.GetResponse();
+                dataStream = rsp.GetResponseStream();
+
+
+                // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
+                StreamReader reader = new StreamReader(dataStream);
+                try
+                {
+                    // Read the content.
+                    string responseFromServer = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                    rsp.Close();
+                    if (!responseFromServer.Contains("success"))
+                        return false;
+                }
+                catch (Exception ex)
+                {
+                    reader.Close();
+                    dataStream.Close();
+                    rsp.Close();
                     return false;
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                reader.Close();
-                dataStream.Close();
-                rsp.Close();
                 return false;
             }
             return true;

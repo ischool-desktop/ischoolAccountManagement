@@ -153,6 +153,12 @@
     <Compile Include="Student\ImportStudentV2.Designer.cs">
       <DependentUpon>ImportStudentV2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Student\ResetStudentPasswordDetialContent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\ResetStudentPasswordDetialContent.Designer.cs">
+      <DependentUpon>ResetStudentPasswordDetialContent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Teacher\ExportTeacherAccount.cs" />
     <Compile Include="Teacher\ExportTeacherV2.cs">
       <SubType>Form</SubType>
@@ -166,6 +172,18 @@
     </Compile>
     <Compile Include="Teacher\ImportTeacherV2.Designer.cs">
       <DependentUpon>ImportTeacherV2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Teacher\ResetTeacherPasswordDetialContent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Teacher\ResetTeacherPasswordDetialContent.Designer.cs">
+      <DependentUpon>ResetTeacherPasswordDetialContent.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypePassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TypePassword.Designer.cs">
+      <DependentUpon>TypePassword.cs</DependentUpon>
     </Compile>
     <Compile Include="Utility.cs" />
   </ItemGroup>
@@ -214,11 +232,20 @@
     <EmbeddedResource Include="Student\ImportStudentV2.resx">
       <DependentUpon>ImportStudentV2.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Student\ResetStudentPasswordDetialContent.resx">
+      <DependentUpon>ResetStudentPasswordDetialContent.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Teacher\ExportTeacherV2.resx">
       <DependentUpon>ExportTeacherV2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Teacher\ImportTeacherV2.resx">
       <DependentUpon>ImportTeacherV2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Teacher\ResetTeacherPasswordDetialContent.resx">
+      <DependentUpon>ResetTeacherPasswordDetialContent.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TypePassword.resx">
+      <DependentUpon>TypePassword.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

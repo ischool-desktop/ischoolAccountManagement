@@ -65,6 +65,10 @@ namespace ischoolAccountManagement
                 importer.InitializeImport(wizard);
                 wizard.ShowDialog();
             };
+
+            K12.Presentation.NLDPanels.Student.AddDetailBulider<ResetStudentPasswordDetialContent>();
+
+            K12.Presentation.NLDPanels.Teacher.AddDetailBulider<ResetTeacherPasswordDetialContent>();
         }
     }
 }
