@@ -19,8 +19,8 @@ namespace ischoolAccountManagement.Student
             _FieldNameList = new List<string>();
             _FieldNameList.Add("登入账号");
             _FieldNameList.Add("密码");
-            _FieldNameList.Add("姓");
-            _FieldNameList.Add("名");
+            //_FieldNameList.Add("姓");
+            //_FieldNameList.Add("名");
         }
         public override void InitializeExport(SmartSchool.API.PlugIn.Export.ExportWizard wizard)
         {
