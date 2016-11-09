@@ -15,9 +15,9 @@ namespace ischoolAccountManagement.Admin
     public partial class AdminForm : BaseForm
     {
         private string _Title = "網域管理者帳號設定";
-        private string _AccountType="";
-        UDT_AdminData _AdminData = null;        
-        
+        private string _AccountType = "";
+        UDT_AdminData _AdminData = null;
+
         public AdminForm(string AccountType)
         {
             _AccountType = AccountType;
@@ -37,7 +37,7 @@ namespace ischoolAccountManagement.Admin
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if(string.IsNullOrWhiteSpace(txtDomain.Text))
+            if (string.IsNullOrWhiteSpace(txtDomain.Text))
             {
                 MsgBox.Show("網域必填。");
                 return;
@@ -64,10 +64,19 @@ namespace ischoolAccountManagement.Admin
                 _AdminData.Account = txtAccount.Text;
                 _AdminData.Password = Utility.ConvertStringToBase64String(txtPassword.Text);
                 _AdminData.Type = _AccountType;
-                _AdminData.Save();
-                MsgBox.Show("儲存完成");
-                this.Close();
-            }catch(Exception ex)
+
+                if (_AdminData.Check())
+                {
+                    _AdminData.Save();
+                    MsgBox.Show("儲存完成");
+                    this.Close();
+                }
+                else
+                {
+                    MsgBox.Show("管理者帳號錯誤");
+                }
+            }
+            catch (Exception ex)
             {
                 MsgBox.Show("儲存過程發生錯誤" + ex.Message);
             }
@@ -92,7 +101,8 @@ namespace ischoolAccountManagement.Admin
                     txtDomain.Text = _AdminData.Domain;
                     txtPassword.Text = Utility.ConvertBase64StringToString(_AdminData.Password);
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
 
             }

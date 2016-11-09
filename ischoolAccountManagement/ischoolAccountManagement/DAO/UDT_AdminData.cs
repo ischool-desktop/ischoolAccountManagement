@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FISCA.UDT;
+using System.Net;
+using System.IO;
+using static ischoolAccountManagement.Service;
 
 namespace ischoolAccountManagement.DAO
 {
@@ -34,5 +37,24 @@ namespace ischoolAccountManagement.DAO
         [Field(Field = "type", Indexed = false)]
         public string Type { get; set; }
 
+        public bool Check()
+        {
+            try
+            {
+                if (new RequestPackage()
+                {
+                    Application = FISCA.Authentication.DSAServices.AccessPoint,
+                    Domain = new DomainAdmin() { Name = Domain, Acc = Account, Pwd = Utility.ConvertBase64StringToString(Password) },
+                    List = null
+                }.Send().Contains("success"))
+                    return true;
+                else
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }
