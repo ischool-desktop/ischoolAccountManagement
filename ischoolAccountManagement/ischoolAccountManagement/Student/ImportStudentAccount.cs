@@ -10,372 +10,71 @@ using ischoolAccountManagement.DAO;
 using System.Net;
 using System.IO;
 using System.Xml.Linq;
+using static ischoolAccountManagement.Service;
 
 namespace ischoolAccountManagement
 {
     class ImportStudentData : SmartSchool.API.PlugIn.Import.Importer
     {
-        List<string> _FieldNameList = new List<string>();
-        List<string> _Keys = new List<string>();
-        List<StudentRecord> StudentRecAllList = new List<StudentRecord>();
         // 系統內學生帳號
-        Dictionary<string, string> StudSANameDict = new Dictionary<string, string>();
-        Dictionary<string, string> StudSANameSnumDict = new Dictionary<string, string>();
+        Dictionary<string, string> _ExistingAccount = new Dictionary<string, string>();
+        Dictionary<string, StudentRecord> _DicStudentRecord = new Dictionary<string, StudentRecord>();
+        Dictionary<StudentRecord, string> _DicOldAccount = new Dictionary<StudentRecord, string>();
+        FISCA.LogAgent.LogSaver _LogSaver = FISCA.LogAgent.ApplicationLog.CreateLogSaverInstance();
+        List<string> _ImportList;
+        UDT_AdminData _AdminData;
 
         public ImportStudentData()
         {
             this.Image = null;
             this.Text = "匯入學生帳號";
-            _FieldNameList.Add("登入帳號");
-            _FieldNameList.Add("密碼");
-            _FieldNameList.Add("姓");
-            _FieldNameList.Add("名");
+
+            _AdminData = Utility.GetAdminData("student");
         }
 
         public override void InitializeImport(SmartSchool.API.PlugIn.Import.ImportWizard wizard)
-        {   
-            // 檢查是否已設定網路管理者
-            UDT_AdminData chkAdData = Utility.GetAdminData("student");
-            bool chkAdDataErr = false;
-            if (chkAdData == null)
-                chkAdDataErr = true;
-
-            if(chkAdData !=null)
-            {
-                if (chkAdData.Account.Trim() == "" || chkAdData.Password.Trim() == "" || chkAdData.Domain.Trim() == "")
-                    chkAdDataErr = true;
-            }
-
-            if(chkAdDataErr)
-            {
-                string msg = "網路管理者帳號未設定或設定不完整，無法上傳學生網域帳號，請至進階 設定網域管理者帳號";
-                FISCA.Presentation.Controls.MsgBox.Show(msg);
-            }
-
-            // 檢查帳號是否可以登入
-            if (chkAdDataErr == false)
-            {
-                Utility.CheckAdminPWD("student");
-            }     
-
-            VirtualCheckBox setAccount = new VirtualCheckBox("設定網域管理者帳號", false);
-            setAccount.CheckedChanged += delegate { 
-            if(setAccount.Checked)
-            {
-
-                Admin.AdminForm ad = new Admin.AdminForm("student");          
-                ad.Show();
-                setAccount.Checked = false;
-            }
-            };            
-
-            wizard.Options.Add(setAccount);            
+        {
             wizard.PackageLimit = 3000;
-            //必需要有的欄位
-            wizard.RequiredFields.AddRange("學號");
             //可匯入的欄位
-            wizard.ImportableFields.AddRange(_FieldNameList);
+            wizard.ImportableFields.AddRange("登入帳號", "密碼");
 
             wizard.ValidateStart += wizard_ValidateStart;
-
             //驗證每行資料的事件
             wizard.ValidateRow += wizard_ValidateRow;
+
+            wizard.ImportStart += Wizard_ImportStart;
 
             //實際匯入資料的事件
             wizard.ImportPackage += wizard_ImportPackage;
 
             //匯入完成
-            wizard.ImportComplete += (sender, e) => MessageBox.Show("匯入完成!");
+            wizard.ImportComplete += Wizard_ImportComplete;
         }
+
 
         void wizard_ValidateStart(object sender, SmartSchool.API.PlugIn.Import.ValidateStartEventArgs e)
         {
-            _Keys.Clear();
-            StudentRecAllList = K12.Data.Student.SelectAll();
             // 系統內學生帳號
-            StudSANameDict.Clear();
-            StudSANameSnumDict.Clear();
+            _ExistingAccount.Clear();
             List<string> idList = new List<string>();
             foreach (string id in e.List)
                 idList.Add(id);
 
-            foreach (StudentRecord rec in StudentRecAllList)
-            {                 
-                if(idList.Contains(rec.ID))
+            foreach (StudentRecord rec in K12.Data.Student.SelectAll())
+            {
+                if (idList.Contains(rec.ID))
                     rec.SALoginName = "";
 
                 if (rec.SALoginName != "")
                 {
                     string sKey = rec.SALoginName.ToLower().Replace(" ", "");
-                    if (!StudSANameDict.ContainsKey(sKey))
-                        StudSANameDict.Add(sKey, rec.ID);
-
-                    if (rec.Status == StudentRecord.StudentStatus.一般)
-                    {
-                        if (!StudSANameSnumDict.ContainsKey(sKey))
-                            StudSANameSnumDict.Add(sKey, rec.StudentNumber);
-                    }
+                    if (!_ExistingAccount.ContainsKey(sKey))
+                        _ExistingAccount.Add(sKey, rec.ID);
                 }
             }
-
+            _ImportList = new List<string>(e.List);
         }
 
-        void wizard_ImportPackage(object sender, SmartSchool.API.PlugIn.Import.ImportPackageEventArgs e)
-        {
-            // 尋找主要Key來判斷，如果有學生系統編號先用系統編號，沒有使用學號，
-            Dictionary<string, RowData> RowDataDict = new Dictionary<string, RowData>();
-            Dictionary<string, int> chkSidDict = new Dictionary<string, int>();
-            Dictionary<string, string> chkSnumDict = new Dictionary<string, string>();
-            List<StudentRecord> InsertStudentRecList = new List<StudentRecord>();
-            List<StudentRecord> StudentRecAllList = K12.Data.Student.SelectAll();
-            // 系統內學生帳號
-            Dictionary<string, string> StudSANameDict = new Dictionary<string, string>();
-            
-            foreach (StudentRecord rec in StudentRecAllList)
-            {
-                chkSidDict.Add(rec.ID, 0);
-                string key = rec.StudentNumber + rec.StatusStr;
-                if (!chkSnumDict.ContainsKey(key))
-                    chkSnumDict.Add(key, rec.ID);
-
-                if (!StudSANameDict.ContainsKey(rec.SALoginName))
-                    StudSANameDict.Add(rec.SALoginName, rec.ID);
-            }
-
-             // 再次建立索引
-            Dictionary<string, StudentRecord> StudRecAllDict = new Dictionary<string, StudentRecord>();
-            StudentRecAllList = K12.Data.Student.SelectAll();
-            chkSidDict.Clear();
-            chkSnumDict.Clear();
-            foreach (StudentRecord rec in StudentRecAllList)
-            {
-                chkSidDict.Add(rec.ID, 0);
-                string key = rec.StudentNumber + rec.StatusStr;
-                if (!chkSnumDict.ContainsKey(key))
-                    chkSnumDict.Add(key, rec.ID);
-
-                StudRecAllDict.Add(rec.ID, rec);
-            }
-
-            List<string> StudentIDList = new List<string>();
-            //比對
-            foreach (RowData Row in e.Items)
-            {
-                string StudentID = "";
-
-                if (Row.ContainsKey("學生系統編號"))
-                {
-                    string id = Row["學生系統編號"].ToString();
-                    if (chkSidDict.ContainsKey(id))
-                        StudentID = id;
-                }
-
-                if (StudentID == "")
-                {
-                    string ssNum = "", snum = "";
-                    if (Row.ContainsKey("學號"))
-                    {
-                        snum = Row["學號"].ToString();
-                        string status = "一般";
-                        if (Row.ContainsKey("狀態"))
-                        {
-                            if (Row["狀態"].ToString() != "")
-                                status = Row["狀態"].ToString();
-                        }
-                        ssNum = snum + status;
-                    }
-
-                    if (chkSnumDict.ContainsKey(ssNum))
-                        StudentID = chkSnumDict[ssNum];
-                }
-
-                if (!string.IsNullOrEmpty(StudentID))
-                {
-                    if (!RowDataDict.ContainsKey(StudentID))
-                        RowDataDict.Add(StudentID, Row);
-
-                    StudentIDList.Add(StudentID);
-                }
-            }
-            // 取得學生基本
-            List<StudentRecord> StudentRecordList = K12.Data.Student.SelectByIDs(StudentIDList);
-            Dictionary<string, StudentRecord> StudentRecordDict = new Dictionary<string, StudentRecord>();
-            foreach (StudentRecord rec in StudentRecordList)
-                if (!StudentRecordDict.ContainsKey(rec.ID))
-                    StudentRecordDict.Add(rec.ID, rec);
-
-
-            List<Service.UserAccount> UserAccountList = new List<Service.UserAccount>();
-
-            // 開始處理
-            List<StudentRecord> updateStudentRecList = new List<StudentRecord>();
-            
-            #region 上傳到Domain
-            string dName = "", dAccount = "", dPwd = "";
-
-            bool chkSend = false;
-            // 取得帳號UDT
-            UDT_AdminData udtAdmin = Utility.GetAdminData("student");
-            if (udtAdmin != null)
-            {
-                dName = udtAdmin.Domain;
-                dAccount = udtAdmin.Account;
-                dPwd = Utility.ConvertBase64StringToString(udtAdmin.Password);
-                chkSend = true;
-            }
-
-            // 記log
-            StringBuilder sbLog = new StringBuilder();            
-            foreach (string StudentID in RowDataDict.Keys)
-            {
-                if (StudentRecordDict.ContainsKey(StudentID))
-                {
-                    string tt = "學生系統編號：" + StudentID + ",學號：" + StudentRecordDict[StudentID].StudentNumber;
-                    if (StudentRecordDict[StudentID].Class != null)
-                        tt += "班級：" + StudentRecordDict[StudentID].Class.Name;
-
-                    if (StudentRecordDict[StudentID].SeatNo.HasValue)
-                        tt += "座號：" + StudentRecordDict[StudentID].SeatNo.Value;
-                    RowData rd = RowDataDict[StudentID];
-                    if (rd.ContainsKey("登入帳號"))
-                    {
-                        string value = rd["登入帳號"].ToString();
-                        string oldValue=StudentRecordDict[StudentID].SALoginName;
-                        if ( oldValue!= value)
-                            sbLog.AppendLine(string.Format("登入帳號由「{0}」改為「{1}」", oldValue, value));
-                    }
-                }
-            }
-
-            // 清空這學生原本帳號
-            foreach (string StudentID in RowDataDict.Keys)
-            {
-                if (StudentRecordDict.ContainsKey(StudentID))
-                {
-                    RowData rd = RowDataDict[StudentID];
-                    if (rd.ContainsKey("登入帳號"))
-                    {
-                        string value = rd["登入帳號"].ToString();
-                        if (value != "")
-                        {
-                            StudentRecordDict[StudentID].SALoginName = "";
-                            updateStudentRecList.Add(StudentRecordDict[StudentID]);
-                        }
-                    }
-                }
-            }
-            if (updateStudentRecList.Count > 0)
-                K12.Data.Student.Update(updateStudentRecList);
-
-
-            updateStudentRecList.Clear();
-            // 放入新帳號
-            foreach (string StudentID in RowDataDict.Keys)
-            {
-                if (StudentRecordDict.ContainsKey(StudentID))
-                {
-                    RowData rd = RowDataDict[StudentID];
-                    if (rd.ContainsKey("登入帳號"))
-                    {
-                        string value = rd["登入帳號"].ToString();
-                        if (!value.Contains("@") && dName !="")
-                            value = value + "@" + dName;
-                        StudentRecordDict[StudentID].SALoginName = value;
-                        updateStudentRecList.Add(StudentRecordDict[StudentID]);
-                    }
-                }
-            }
-
-            if (updateStudentRecList.Count > 0)
-                K12.Data.Student.Update(updateStudentRecList);
-
-            FISCA.LogAgent.ApplicationLog.Log("匯入學生帳號", "匯入", sbLog.ToString());
-
-
-            if(chkSend)
-            {
-                try
-                {
-                    StringBuilder sendSB = new StringBuilder();
-
-                    foreach (RowData Row in e.Items)
-                    {
-                        Service.UserAccount uAcc = new Service.UserAccount();
-                        if (Row.ContainsKey("登入帳號"))
-                        {
-                            uAcc.Account = Row["登入帳號"].ToString();
-
-                            // 檢查Account 是否有帶@，沒有自動加入。
-                            if (!uAcc.Account.Contains("@") && dName != "")
-                                uAcc.Account = uAcc.Account + "@" + dName;
-
-                        }
-
-                        if (Row.ContainsKey("密碼"))
-                            uAcc.Password = Row["密碼"].ToString();
-
-                        if (Row.ContainsKey("姓"))
-                            uAcc.LastName = Row["姓"].ToString();
-
-                        if (Row.ContainsKey("名"))
-                            uAcc.FirstName = Row["名"].ToString();
-
-                        UserAccountList.Add(uAcc);
-                    }
-                    string dsns = FISCA.Authentication.DSAServices.AccessPoint;
-
-                    string url = Config.TaiwanUrl;
-                    HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                    req.Method = "POST";
-                    req.Accept = "*/*";
-                    req.ContentType = "application/json";
-                    req.Referer = url;
-                    //req.Host = "auth.ischoolcenter.com";              
-                    //req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36";                
-                    sendSB.Append("{");
-                    string titleStr = "'application':'" + dsns + "','domain':{'name':'" + dName + "','acc':'" + dAccount + "','pwd':'" + dPwd + "'},'list':";
-                    // 取代'""
-                    string cc = "\"";
-                    titleStr = titleStr.Replace("'", cc);
-                    sendSB.Append(titleStr);
-                    sendSB.Append(Service.GetUserAccountJSONString(UserAccountList));
-                    sendSB.Append("}");
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-                    byte[] byteArray = Encoding.UTF8.GetBytes(sendSB.ToString());
-                    req.ContentLength = byteArray.Length;
-                    Stream dataStream = req.GetRequestStream();
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    dataStream.Close();
-                    try
-                    {
-                        HttpWebResponse rsp;
-                        rsp = (HttpWebResponse)req.GetResponse();
-                        //= req.GetResponse();
-                        dataStream = rsp.GetResponseStream();
-
-
-                        // Console.WriteLine(((HttpWebResponse)rsp).StatusDescription);
-                        StreamReader reader = new StreamReader(dataStream);
-                        // Read the content.
-                        string responseFromServer = reader.ReadToEnd();
-                        reader.Close();
-                        dataStream.Close();
-                        rsp.Close();
-                        if (!responseFromServer.Contains("success"))
-                            FISCA.Presentation.Controls.MsgBox.Show("上傳網域帳號失敗," + responseFromServer);
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                }catch(Exception ex)
-                {
-                    FISCA.Presentation.Controls.MsgBox.Show("網域帳號登入失敗," +ex.Message);
-                }
-            }
-            #endregion           
-        }
         void wizard_ValidateRow(object sender, SmartSchool.API.PlugIn.Import.ValidateRowEventArgs e)
         {
             #region 驗各欄位填寫格式
@@ -388,61 +87,98 @@ namespace ischoolAccountManagement
                     default:
                         break;
 
-                    case "學號":
-                        if (value.Replace(" ", "") == "")
-                            e.ErrorFields.Add(field, "此欄為必填欄位。");
-                        break;
-              
                     case "登入帳號":
-                        if(value !="")
+                        if (value != "")
                         {
+                            if (!value.Contains("@"))
+                                value = value + "@" + _AdminData.Domain;
                             value = value.ToLower().Replace(" ", "");
-                            if (StudSANameSnumDict.ContainsKey(value))
+                            lock (_ExistingAccount)
                             {
-                                if (e.Data.ContainsKey("學號"))
+                                if (_ExistingAccount.ContainsKey(value))
                                 {
-                                    string SysNum = e.Data["學號"].ToString();
-                                    if (SysNum != StudSANameSnumDict[value])
-                                        e.ErrorFields.Add(field, "學生登入帳號已被使用，請修正。");
+                                    e.ErrorFields.Add(field, "學生登入帳號重複，請修正");
+                                }
+                                else
+                                {
+                                    _ExistingAccount.Add(value, e.Data.ID);
                                 }
                             }
-
-                            if(StudSANameDict.ContainsKey(value))
+                            if (value.Contains("@") && !value.EndsWith("@" + _AdminData.Domain.ToLower()))
                             {
-                                if(e.Data.ContainsKey("學生系統編號"))
-                                {
-                                    string SysID = e.Data["學生系統編號"].ToString();
-                                    if(SysID !=StudSANameDict[value])
-                                        e.ErrorFields.Add(field, "學生登入帳號已被使用，請修正");
-                                }
+                                e.WarningFields.Add(field, "輸入帳號不屬於設定的網域，將不會進行帳號密碼的開設");
                             }
-
                         }
                         break;
                 }
             }
             #endregion
-            #region 驗證主鍵
+        }
 
-            
-            //string Key = e.Data.ID;
-
-            string Key = "";
-            if(e.Data.ContainsKey("登入帳號"))
+        private void Wizard_ImportStart(object sender, EventArgs e)
+        {
+            _LogSaver.ClearBatch();
+            _DicOldAccount.Clear();
+            _DicStudentRecord.Clear();
+            List<StudentRecord> list = K12.Data.Student.SelectByIDs(_ImportList);
+            foreach (var item in list)
             {
-                Key = e.Data["登入帳號"].ToLower().Replace(" ","");
+                _DicOldAccount.Add(item, "" + item.SALoginName);
+                item.SALoginName = "";
+                _DicStudentRecord.Add(item.ID, item);
             }
-            string errorMessage = string.Empty;
+            K12.Data.Student.Update(list);
+        }
 
-            if(!string.IsNullOrWhiteSpace(Key))
-            if (_Keys.Contains(Key))
-                errorMessage = "登入帳號重複，無法匯入。";
-            else
-                _Keys.Add(Key);
-
-            e.ErrorMessage = errorMessage;
-
-            #endregion
+        void wizard_ImportPackage(object sender, SmartSchool.API.PlugIn.Import.ImportPackageEventArgs e)
+        {
+            List<Service.UserAccount> uploadList = new List<Service.UserAccount>();
+            var list = new List<StudentRecord>();
+            foreach (var row in e.Items)
+            {
+                var stuRec = _DicStudentRecord[row.ID];
+                list.Add(stuRec);
+                string value = "" + row["登入帳號"];
+                if (value != "")
+                {
+                    if (!value.Contains("@"))
+                        value = value + "@" + _AdminData.Domain;
+                    value = value.Replace(" ", "");
+                    stuRec.SALoginName = value;
+                    list.Add(stuRec);
+                    if (value.ToLower().EndsWith("@" + _AdminData.Domain.ToLower()))
+                    {
+                        string pwd = "" + row["密碼"];
+                        if (pwd != "")
+                            uploadList.Add(new Service.UserAccount() { Account = value, FirstName = stuRec.Name, LastName = "", Password = pwd });
+                    }
+                }
+                if (_DicOldAccount[stuRec].ToLower() != stuRec.SALoginName.ToLower())
+                {
+                    if (_DicOldAccount[stuRec] == "")
+                        _LogSaver.AddBatch("匯入學生帳號", "匯入", "student", row.ID, string.Format("登入帳號設定為「{1}」", _DicOldAccount[stuRec], stuRec.SALoginName));
+                    else
+                        _LogSaver.AddBatch("匯入學生帳號", "匯入", "student", row.ID, string.Format("登入帳號由「{0}」改為「{1}」", _DicOldAccount[stuRec], stuRec.SALoginName));
+                }
+            }
+            if (list.Count > 0)
+            {
+                K12.Data.Student.Update(list);
+            }
+            if (uploadList.Count > 0)
+            {
+                new RequestPackage()
+                {
+                    Application = FISCA.Authentication.DSAServices.AccessPoint,
+                    Domain = new DomainAdmin() { Name = _AdminData.Domain, Acc = _AdminData.Account, Pwd = Utility.ConvertBase64StringToString(_AdminData.Password) },
+                    List = uploadList.ToArray()
+                }.Send();
+            }
+        }
+        private void Wizard_ImportComplete(object sender, EventArgs e)
+        {
+            _LogSaver.LogBatch();
+            MessageBox.Show("匯入完成!");
         }
     }
 }
