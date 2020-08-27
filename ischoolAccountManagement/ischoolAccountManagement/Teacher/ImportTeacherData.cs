@@ -143,8 +143,11 @@ namespace ischoolAccountManagement
                     if (value.ToLower().EndsWith("@" + _AdminData.Domain.ToLower()))
                     {
                         string pwd = "" + row["密碼"];
-                        if (pwd != "")
-                            uploadList.Add(new Service.UserAccount() { Account = value, FirstName = teacherRec.Name, LastName = "", Password = pwd });
+                        if (String.IsNullOrWhiteSpace(pwd))
+                        {
+                            pwd = Guid.NewGuid().ToString();    // 預設給個猜不出來的密碼
+                        }
+                        uploadList.Add(new Service.UserAccount() { Account = value, FirstName = teacherRec.Name, LastName = "", Password = pwd });
                     }
                 }
                 if (_DicOldAccount[teacherRec].ToLower() != teacherRec.TALoginName.ToLower())
