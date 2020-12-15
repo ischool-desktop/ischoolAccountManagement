@@ -65,7 +65,7 @@ namespace ischoolAccountManagement
                 req.Accept = "*/*";
                 req.ContentType = "application/json";
                 req.Referer = url;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                // ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
                 byte[] byteArray = Encoding.UTF8.GetBytes(GetRequestJSON());
                 req.ContentLength = byteArray.Length;
                 Stream dataStream = req.GetRequestStream();
